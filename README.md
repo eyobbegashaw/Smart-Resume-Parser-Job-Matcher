@@ -1,6 +1,3 @@
-# README.md
-
-```markdown
 # Smart Resume Parser & Job Matcher
 
 An AI-powered tool that helps Ethiopian students and fresh graduates understand their job market value by extracting skills from their CVs and matching them with relevant job opportunities.
