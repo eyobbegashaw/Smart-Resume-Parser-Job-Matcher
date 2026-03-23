@@ -6,6 +6,9 @@ const jobSchema = new mongoose.Schema({
     required: [true, 'Please add a job title'],
     trim: true
   },
+
+
+  
   company: {
     type: String,
     required: [true, 'Please add a company name'],
