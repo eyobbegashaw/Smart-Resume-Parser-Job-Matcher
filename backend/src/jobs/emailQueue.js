@@ -11,6 +11,7 @@ const redisConfig = {
   }
 };
 
+
 // Create email queue
 const emailQueue = new Queue('email', redisConfig);
 
