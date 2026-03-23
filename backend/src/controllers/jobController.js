@@ -6,6 +6,7 @@ const logger = require('../utils/logger');
  * @route   GET /api/jobs
  * @access  Public
  */
+
 exports.getJobs = async (req, res, next) => {
   try {
     const {
