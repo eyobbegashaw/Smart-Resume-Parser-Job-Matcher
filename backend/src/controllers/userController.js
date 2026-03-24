@@ -24,7 +24,6 @@ exports.getProfile = async (req, res, next) => {
     next(error);
   }
 };
-
 /**
  * @desc    Update user profile
  * @route   PUT /api/users/profile
