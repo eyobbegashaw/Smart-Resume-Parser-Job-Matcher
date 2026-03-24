@@ -5,7 +5,6 @@ class Database {
   constructor() {
     this.isConnected = false;
   }
-
   /**
    * Connect to MongoDB
    */
