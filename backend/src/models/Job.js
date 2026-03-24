@@ -7,8 +7,6 @@ const jobSchema = new mongoose.Schema({
     trim: true
   },
 
-
-  
   company: {
     type: String,
     required: [true, 'Please add a company name'],
