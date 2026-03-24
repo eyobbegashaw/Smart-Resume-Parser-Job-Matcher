@@ -10,8 +10,6 @@ const redisConfig = {
     password: process.env.REDIS_PASSWORD
   }
 };
-
-
 // Create email queue
 const emailQueue = new Queue('email', redisConfig);
 
