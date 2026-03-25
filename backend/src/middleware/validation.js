@@ -1,8 +1,4 @@
 const { body, param, query, validationResult } = require('express-validator');
-
-
-
-
 // Validation rules for different endpoints
 const validationRules = {
   // Auth validation
