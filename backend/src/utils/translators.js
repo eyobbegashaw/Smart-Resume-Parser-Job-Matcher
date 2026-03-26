@@ -279,7 +279,8 @@ const translations = {
     'days_ago': 'ከ{days} ቀናት በፊት',
     'weeks_ago': 'ከ{weeks} ሳምንታት በፊት',
     'months_ago': 'ከ{months} ወራት በፊት',
-    
+
+
     // Actions
     'upload': 'ስቀል',
     'download': 'አውርድ',
