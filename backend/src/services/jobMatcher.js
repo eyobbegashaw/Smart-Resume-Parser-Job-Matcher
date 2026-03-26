@@ -20,6 +20,7 @@ class JobMatcherService {
       }
     });
 
+
     // Calculate percentage based on job requirements
     const matchPercentage = (matches / jobSkillSet.size) * 100;
     return Math.round(matchPercentage);
