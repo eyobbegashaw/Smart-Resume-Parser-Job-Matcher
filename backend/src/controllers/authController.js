@@ -12,7 +12,6 @@ const generateToken = (id) => {
     expiresIn: process.env.JWT_EXPIRE || '7d'
   });
 };
-
 // Generate refresh token
 const generateRefreshToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET, {
