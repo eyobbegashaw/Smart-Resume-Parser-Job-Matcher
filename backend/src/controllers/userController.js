@@ -4,6 +4,7 @@ const SavedJob = require('../models/SavedJob');
 const logger = require('../utils/logger');
 const { validationResult } = require('express-validator');
 
+
 /**
  * @desc    Get user profile
  * @route   GET /api/users/profile
