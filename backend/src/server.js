@@ -7,6 +7,7 @@ const path = require('path');
 // Load env vars
 dotenv.config();
 
+
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const resumeRoutes = require('./routes/resumeRoutes');
