@@ -14,7 +14,8 @@ class PDFParserService {
         max: 0, // No page limit
         pagerender: this.customPageRenderer
       });
-      
+
+
       return {
         text: this.cleanText(data.text),
         pages: data.numpages,
