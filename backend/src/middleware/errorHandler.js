@@ -1,5 +1,6 @@
 const logger = require('../utils/logger');
 
+
 exports.errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
