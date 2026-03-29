@@ -4,6 +4,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const logger = require('../utils/logger');
 
+
 // Ensure upload directory exists
 const uploadDir = path.join(__dirname, '../../uploads');
 if (!fs.existsSync(uploadDir)) {
