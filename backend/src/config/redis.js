@@ -1,6 +1,8 @@
 const Redis = require('ioredis');
 const logger = require('../utils/logger');
 
+
+
 class RedisClient {
   constructor() {
     this.client = null;
