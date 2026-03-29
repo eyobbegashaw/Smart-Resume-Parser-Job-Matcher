@@ -5,6 +5,7 @@ const jobMatcher = require('../services/jobMatcher');
 const logger = require('../utils/logger');
 const { validationResult } = require('express-validator');
 
+
 /**
  * @desc    Upload and parse resume
  * @route   POST /api/resumes/upload
