@@ -1,7 +1,5 @@
 const Job = require('../models/Job');
 const logger = require('../utils/logger');
-
-
 /**
  * @desc    Get all jobs with filtering
  * @route   GET /api/jobs
