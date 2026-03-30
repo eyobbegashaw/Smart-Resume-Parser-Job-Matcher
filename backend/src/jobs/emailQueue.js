@@ -3,8 +3,6 @@ const emailService = require('../services/emailService');
 const logger = require('../utils/logger');
 
 
-
-
 // Create Redis connection
 const redisConfig = {
   redis: {
