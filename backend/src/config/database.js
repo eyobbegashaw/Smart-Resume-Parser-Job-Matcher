@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const logger = require('../utils/logger');
 
-
-
 class Database {
   constructor() {
     this.isConnected = false;
