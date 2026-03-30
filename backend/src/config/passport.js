@@ -11,6 +11,8 @@ const jwtOptions = {
   passReqToCallback: true
 };
 
+
+
 passport.use(
   new JwtStrategy(jwtOptions, async (req, payload, done) => {
     try {
