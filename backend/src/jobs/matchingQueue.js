@@ -5,7 +5,6 @@ const Resume = require('../models/Resume');
 const User = require('../models/User');
 const logger = require('../utils/logger');
 
-
 const redisConfig = {
   redis: {
     host: process.env.REDIS_HOST || 'localhost',
