@@ -6,7 +6,6 @@ const { validationResult } = require('express-validator');
 const emailService = require('../services/emailService');
 const logger = require('../utils/logger');
 
-
 // Generate JWT Token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
