@@ -1,4 +1,3 @@
-
 const User = require('../models/User');
 const Resume = require('../models/Resume');
 const SavedJob = require('../models/SavedJob');
