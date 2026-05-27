@@ -1,4 +1,3 @@
-
 const Queue = require('bull');
 const emailService = require('../services/emailService');
 const logger = require('../utils/logger');
