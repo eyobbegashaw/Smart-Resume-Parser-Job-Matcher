@@ -1,4 +1,3 @@
-
 const Queue = require('bull');
 const jobMatcher = require('../services/jobMatcher');
 const emailQueue = require('./emailQueue');
