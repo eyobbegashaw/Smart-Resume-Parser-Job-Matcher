@@ -53,8 +53,9 @@ class Helpers {
    * Extract keywords from text
    */
   static extractKeywords(text, minLength = 3) {
+    if (typeof text !== 'string' || !text.trim()) return [];
     const words = text.toLowerCase()
-      .replace(/[^\w\s]/g, '')
+      .replace(/[^\p{L}\p{N}\s]/gu, ' ')
       .split(/\s+/)
       .filter(word => word.length >= minLength);
     
@@ -149,19 +150,30 @@ class Helpers {
   }
 
   /**
-   * Merge objects deeply
+   * Merge objects deeply (only recurses into plain objects, prevents prototype pollution)
    */
   static deepMerge(target, source) {
-    const output = { ...target };
-    
+    const isPlainObject = (val) =>
+      val !== null &&
+      typeof val === 'object' &&
+      !Array.isArray(val) &&
+      !(val instanceof Date) &&
+      !(val instanceof RegExp);
+
+    const output = isPlainObject(target) ? { ...target } : {};
+    if (!isPlainObject(source)) return output;
+
     Object.keys(source).forEach(key => {
-      if (source[key] instanceof Object && key in target) {
-        output[key] = this.deepMerge(target[key], source[key]);
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        return;
+      }
+      if (isPlainObject(source[key]) && isPlainObject(output[key])) {
+        output[key] = this.deepMerge(output[key], source[key]);
       } else {
         output[key] = source[key];
       }
     });
-    
+
     return output;
   }
 
@@ -226,25 +238,32 @@ class Helpers {
    * Parse CSV string
    */
   static parseCSV(csvString, delimiter = ',') {
-    const lines = csvString.split('\n');
+    if (typeof csvString !== 'string' || !csvString.trim()) return [];
+    const lines = csvString.replace(/\r\n?/g, '\n').trim().split('\n');
+    if (lines.length < 2) return [];
     const headers = lines[0].split(delimiter);
-    
-    return lines.slice(1).map(line => {
-      const values = line.split(delimiter);
-      return headers.reduce((obj, header, i) => {
-        obj[header.trim()] = values[i]?.trim();
-        return obj;
-      }, {});
-    });
+
+    return lines
+      .slice(1)
+      .filter(line => line.trim().length > 0)
+      .map(line => {
+        const values = line.split(delimiter);
+        return headers.reduce((obj, header, i) => {
+          obj[header.trim()] = values[i]?.trim();
+          return obj;
+        }, {});
+      });
   }
 
   /**
    * Generate slug from string
    */
   static slugify(text) {
+    if (typeof text !== 'string') return '';
     return text
       .toLowerCase()
-      .replace(/[^\w\s]/g, '')
+      .trim()
+      .replace(/[^\p{L}\p{N}\s-]/gu, '')
       .replace(/\s+/g, '-');
   }
 
@@ -252,7 +271,7 @@ class Helpers {
    * Truncate text
    */
   static truncateText(text, length = 100, suffix = '...') {
-    if (text.length <= length) return text;
+    if (typeof text !== 'string' || text.length <= length) return text || '';
     return text.substring(0, length).trim() + suffix;
   }
 
@@ -260,9 +279,10 @@ class Helpers {
    * Highlight text
    */
   static highlightText(text, query, className = 'highlight') {
-    if (!query) return text;
-    
-    const regex = new RegExp(`(${query})`, 'gi');
+    if (!query || typeof text !== 'string') return text;
+
+    const escaped = String(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
     return text.replace(regex, `<span class="${className}">$1</span>`);
   }
 
@@ -300,11 +320,12 @@ class Helpers {
    */
   static stringToColor(str) {
     let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    const input = String(str ?? '');
+    for (let i = 0; i < input.length; i++) {
+      hash = input.charCodeAt(i) + ((hash << 5) - hash);
     }
-    
-    const hue = hash % 360;
+
+    const hue = Math.abs(hash) % 360;
     return `hsl(${hue}, 70%, 50%)`;
   }
 

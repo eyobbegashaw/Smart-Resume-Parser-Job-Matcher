@@ -32,24 +32,43 @@ class PDFParserService {
    * Custom page renderer for better text extraction
    */
   customPageRenderer(pageData) {
-    // You can add custom rendering logic here if needed
     return pageData.getTextContent()
       .then(textContent => {
+        let lastY = null;
         let text = '';
-        textContent.items.forEach(item => {
-          text += item.str + ' ';
-        });
+
+        for (const item of textContent.items) {
+          const currentY = item.transform?.[5];
+          if (lastY !== null && currentY !== undefined && Math.abs(lastY - currentY) > 2) {
+            text += '\n';
+          } else if (text && !text.endsWith('\n') && !text.endsWith(' ')) {
+            text += ' ';
+          }
+          text += item.str;
+          if (item.hasEOL) {
+            text += '\n';
+          }
+          if (currentY !== undefined) {
+            lastY = currentY;
+          }
+        }
+
         return text;
       });
   }
 
   /**
-   * Clean extracted text
+   * Clean extracted text while preserving line breaks and Ethiopic characters
    */
   cleanText(text) {
+    if (typeof text !== 'string') return '';
+
     return text
-      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
-      .replace(/[^\x20-\x7E\x0A\x0D\u1200-\u137F]/g, '') // Keep ASCII and Ethiopic characters
+      .replace(/\r\n?/g, '\n')
+      .replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F]/g, '')
+      .replace(/[^\S\n]+/g, ' ')
+      .replace(/ *\n */g, '\n')
+      .replace(/\n{3,}/g, '\n\n')
       .trim();
   }
 
@@ -58,10 +77,14 @@ class PDFParserService {
    * This is a fallback method if AI parsing fails
    */
   extractBasicInfo(text) {
+    if (typeof text !== 'string' || !text.trim()) {
+      return { emails: [], phones: [], possibleName: null };
+    }
+
     const patterns = {
       email: /[\w.-]+@[\w.-]+\.\w+/g,
       phone: /(\+251|0)[1-9]\d{8}/g,
-      name: /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/gm
+      name: /^([A-Za-z\u1200-\u137F]{2,}(?:[ \t]+[A-Za-z\u1200-\u137F]{2,})+)(?=[ \t]*$)/gm
     };
 
     return {

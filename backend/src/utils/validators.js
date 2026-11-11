@@ -5,13 +5,14 @@ class Validators {
    * Validate email
    */
   static isEmail(email) {
-    return validator.isEmail(email);
+    return typeof email === 'string' && validator.isEmail(email);
   }
 
   /**
    * Validate Ethiopian phone number
    */
   static isEthiopianPhone(phone) {
+    if (typeof phone !== 'string') return false;
     const regex = /^(\+251|0)[1-9]\d{8}$/;
     return regex.test(phone);
   }
@@ -20,6 +21,7 @@ class Validators {
    * Validate password strength
    */
   static isStrongPassword(password) {
+    if (typeof password !== 'string') return false;
     const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{6,}$/;
     return regex.test(password);
   }
@@ -28,7 +30,7 @@ class Validators {
    * Validate URL
    */
   static isURL(url) {
-    return validator.isURL(url, {
+    return typeof url === 'string' && validator.isURL(url, {
       protocols: ['http', 'https'],
       require_protocol: true
     });
@@ -38,6 +40,7 @@ class Validators {
    * Validate Ethiopian location
    */
   static isEthiopianLocation(location) {
+    if (typeof location !== 'string') return false;
     const cities = [
       'addis ababa', 'adama', 'bahir dar', 'gondar', 'hawassa',
       'mekelle', 'jimma', 'dire dawa', 'debre zeit', 'arba minch',
@@ -96,9 +99,12 @@ class Validators {
    * Validate graduation year
    */
   static isValidGraduationYear(year) {
+    if (year === null || year === undefined || year === '') return false;
+    const numericYear = Number(year);
+    if (!Number.isInteger(numericYear)) return false;
     const currentYear = new Date().getFullYear();
     const minYear = 1970;
-    return year >= minYear && year <= currentYear + 5;
+    return numericYear >= minYear && numericYear <= currentYear + 5;
   }
 
   /**
@@ -160,6 +166,7 @@ class Validators {
   static isValidAge(birthDate, minAge = 18, maxAge = 65) {
     const today = new Date();
     const birth = new Date(birthDate);
+    if (isNaN(birth.getTime())) return false;
     const age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
     
@@ -199,6 +206,7 @@ class Validators {
    * Validate Ethiopian education institution
    */
   static isValidEthiopianInstitution(institution) {
+    if (typeof institution !== 'string') return false;
     const universities = [
       'addis ababa university', 'aau', 'aastu', 'bahir dar university',
       'mekelle university', 'jimma university', 'haramaya university',

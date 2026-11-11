@@ -1,17 +1,21 @@
 const Resume = require('../models/Resume');
+const User = require('../models/User');
+const Job = require('../models/Job');
 const pdfParser = require('../services/pdfParser');
 const aiParser = require('../services/aiParser');
 const jobMatcher = require('../services/jobMatcher');
 const logger = require('../utils/logger');
-const { validationResult } = require('express-validator');
+
 /**
  * @desc    Upload and parse resume
  * @route   POST /api/resumes/upload
  * @access  Private
  */
 exports.uploadResume = async (req, res, next) => {
+  const startTime = Date.now();
+  let resume = null;
+
   try {
-    // Check if file exists
     if (!req.file) {
       return res.status(400).json({
         success: false,
@@ -20,10 +24,10 @@ exports.uploadResume = async (req, res, next) => {
     }
 
     const userId = req.user.id;
-    const language = req.body.language || 'en';
+    const language = req.body.language === 'am' ? 'am' : 'en';
 
     // Create resume record
-    const resume = await Resume.create({
+    resume = await Resume.create({
       userId,
       fileName: req.file.originalname,
       fileSize: req.file.size,
@@ -33,49 +37,56 @@ exports.uploadResume = async (req, res, next) => {
 
     // Parse PDF
     const extracted = await pdfParser.extractText(req.file.buffer);
-    
-    // Update with raw text
     resume.rawText = extracted.text;
     await resume.save();
 
-    // Parse with AI
+    // Parse and analyze with AI
     const parsedData = await aiParser.parseResume(extracted.text, language);
-    
-    // Analyze resume
     const analysis = await aiParser.analyzeResume(parsedData, language);
 
-    // Update resume with parsed data
     resume.parsedData = parsedData;
     resume.analysis = analysis;
     resume.status = 'completed';
+    resume.processingTime = Date.now() - startTime;
+
+    // Find matching jobs cleanly before final save
+    try {
+      const matches = await jobMatcher.findMatchingJobs(parsedData, 10);
+      resume.matchedJobs = matches.map(m => ({
+        jobId: m.jobId,
+        matchScore: m.matchScore,
+        matchedSkills: m.matchedSkills,
+        missingSkills: m.missingSkills
+      }));
+    } catch (matchErr) {
+      logger.error('Job matching error during upload:', matchErr);
+    }
+
     await resume.save();
 
-    // Find matching jobs (background process)
-    jobMatcher.findMatchingJobs(parsedData, 10)
-      .then(matches => {
-        resume.matchedJobs = matches.map(m => ({
-          jobId: m.jobId,
-          matchScore: m.matchScore,
-          matchedSkills: m.matchedSkills,
-          missingSkills: m.missingSkills
-        }));
-        return resume.save();
-      })
-      .catch(err => logger.error('Background matching error:', err));
+    // Link resume to user profile
+    await User.findByIdAndUpdate(userId, {
+      $addToSet: { resumes: resume._id }
+    });
 
     res.status(200).json({
       success: true,
       data: {
         resumeId: resume._id,
-        parsedData,
-        analysis,
-        message: language === 'am' 
-          ? 'የሥራ መግለጫዎ በተሳካ ሁኔታ ተተንትኗል' 
+        parsedData: resume.parsedData,
+        analysis: resume.analysis,
+        matchedJobs: resume.matchedJobs,
+        message: language === 'am'
+          ? 'የሥራ መግለጫዎ በተሳካ ሁኔታ ተተንትኗል'
           : 'Resume parsed successfully'
       }
     });
-
   } catch (error) {
+    if (resume) {
+      resume.status = 'failed';
+      resume.processingTime = Date.now() - startTime;
+      await resume.save().catch(saveErr => logger.error('Failed to mark resume as failed:', saveErr));
+    }
     logger.error('Upload error:', error);
     next(error);
   }
@@ -149,6 +160,10 @@ exports.deleteResume = async (req, res, next) => {
       });
     }
 
+    await User.findByIdAndUpdate(req.user.id, {
+      $pull: { resumes: resume._id }
+    });
+
     res.status(200).json({
       success: true,
       data: {}
@@ -177,7 +192,13 @@ exports.analyzeSkillGap = async (req, res, next) => {
       });
     }
 
-    const Job = require('../models/Job');
+    if (resume.status !== 'completed' || !resume.parsedData?.skills) {
+      return res.status(400).json({
+        success: false,
+        error: 'Resume has not been parsed yet'
+      });
+    }
+
     const job = await Job.findById(req.params.jobId);
 
     if (!job) {
@@ -187,7 +208,7 @@ exports.analyzeSkillGap = async (req, res, next) => {
       });
     }
 
-    const language = req.body.language || 'en';
+    const language = req.body.language === 'am' ? 'am' : 'en';
     const gapAnalysis = await aiParser.analyzeSkillGap(
       resume.parsedData.skills,
       job,

@@ -84,13 +84,31 @@ const resumeSchema = new mongoose.Schema({
     enum: ['pending', 'processing', 'completed', 'failed'],
     default: 'pending'
   },
-  processingTime: Number,
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
+  processingTime: Number
 }, {
   timestamps: true
+});
+
+// Keep parsedData.skills.all synchronized with hard and soft skills
+resumeSchema.pre('save', function(next) {
+  const skills = this.parsedData?.skills;
+  if (skills) {
+    const hard = Array.isArray(skills.hard) ? skills.hard : [];
+    const soft = Array.isArray(skills.soft) ? skills.soft : [];
+    const existingAll = Array.isArray(skills.all) ? skills.all : [];
+    const combined = [...hard, ...soft, ...existingAll]
+      .filter(s => typeof s === 'string' && s.trim())
+      .map(s => s.trim());
+
+    const seen = new Set();
+    skills.all = combined.filter(skill => {
+      const key = skill.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+  next();
 });
 
 // Index for faster queries

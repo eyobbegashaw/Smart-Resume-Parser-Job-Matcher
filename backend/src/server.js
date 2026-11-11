@@ -1,69 +1,34 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const dotenv = require('dotenv');
+const fs = require('fs');
 const path = require('path');
+const dotenv = require('dotenv');
 
-// Load env vars
-dotenv.config();
-// Import routes
-const authRoutes = require('./routes/authRoutes');
-const resumeRoutes = require('./routes/resumeRoutes');
-const jobRoutes = require('./routes/jobRoutes');
+// Load environment variables from backend/.env before importing app/middleware
+const envPath = path.join(__dirname, '../.env');
+if (fs.existsSync(envPath)) {
+  dotenv.config({ path: envPath });
+} else if (process.env.NODE_ENV !== 'test') {
+  console.warn(
+    `Warning: ${envPath} was not found. Copy backend/.env.example to backend/.env and configure MONGODB_URI and JWT_SECRET.`
+  );
+}
 
-// Import middleware
-const { errorHandler } = require('./middleware/errorHandler');
+const App = require('./app');
 const logger = require('./utils/logger');
 
-const app = express();
+const application = new App();
 
-// Body parser
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Enable CORS
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true
-}));
-
-// Static folder
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
-// Mount routes
-app.use('/api/auth', authRoutes);
-app.use('/api/resumes', resumeRoutes);
-app.use('/api/jobs', jobRoutes);
-
-// Health check
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', message: 'Server is running' });
-});
-
-// Error handler middleware
-app.use(errorHandler);
-
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
-    logger.info('Connected to MongoDB');
-    
-    // Start server
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
-      logger.info(`Server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    logger.error('MongoDB connection error:', err);
+if (require.main === module) {
+  application.start().catch((err) => {
+    logger.error('Failed to start server:', err);
     process.exit(1);
   });
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-  logger.error('Unhandled Rejection:', err);
-  // Close server & exit process
-  process.exit(1);
-});
+  process.on('unhandledRejection', (err) => {
+    logger.error('Unhandled Rejection:', err);
+    process.exit(1);
+  });
+} else {
+  application.configure();
+}
 
-module.exports = app;
+module.exports = application.app;

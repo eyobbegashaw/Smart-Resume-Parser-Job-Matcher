@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
 const { protect } = require('../middleware/auth');
+const { uploadMemory, handleMulterError } = require('../middleware/upload');
+const { uploadLimiter } = require('../middleware/rateLimiter');
+const { validate } = require('../middleware/validation');
 const {
   uploadResume,
   getResume,
@@ -10,28 +12,20 @@ const {
   analyzeSkillGap
 } = require('../controllers/resumeController');
 
-// Configure multer for memory storage
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'application/pdf') {
-      cb(null, true);
-    } else {
-      cb(new Error('Only PDF files are allowed'), false);
-    }
-  }
-});
-
 // All routes require authentication
 router.use(protect);
 
-router.post('/upload', upload.single('resume'), uploadResume);
+router.post(
+  '/upload',
+  uploadLimiter,
+  uploadMemory.single('resume'),
+  handleMulterError,
+  validate('resumeUpload'),
+  uploadResume
+);
 router.get('/', getUserResumes);
-router.get('/:id', getResume);
-router.delete('/:id', deleteResume);
-router.post('/:id/analyze-gap/:jobId', analyzeSkillGap);
+router.get('/:id', validate('validateId'), getResume);
+router.delete('/:id', validate('validateId'), deleteResume);
+router.post('/:id/analyze-gap/:jobId', validate('validateId'), analyzeSkillGap);
 
 module.exports = router;

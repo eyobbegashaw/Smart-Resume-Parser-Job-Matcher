@@ -6,20 +6,25 @@ class JobMatcherService {
    * Calculate match score between resume and job
    */
   calculateMatchScore(resumeSkills, jobSkills) {
-    if (!resumeSkills || !jobSkills || !jobSkills.length) {
+    if (!Array.isArray(resumeSkills) || !Array.isArray(jobSkills) || !jobSkills.length) {
       return 0;
     }
 
-    const resumeSkillSet = new Set(resumeSkills.map(s => s.toLowerCase()));
-    const jobSkillSet = new Set(jobSkills.map(s => s.toLowerCase()));
-    
+    const resumeSkillSet = new Set(
+      resumeSkills.filter(s => typeof s === 'string' && s.trim()).map(s => s.trim().toLowerCase())
+    );
+    const jobSkillSet = new Set(
+      jobSkills.filter(s => typeof s === 'string' && s.trim()).map(s => s.trim().toLowerCase())
+    );
+
+    if (!jobSkillSet.size) return 0;
+
     let matches = 0;
     jobSkillSet.forEach(skill => {
       if (resumeSkillSet.has(skill)) {
         matches++;
       }
     });
-
 
     // Calculate percentage based on job requirements
     const matchPercentage = (matches / jobSkillSet.size) * 100;
@@ -31,44 +36,62 @@ class JobMatcherService {
    */
   async findMatchingJobs(resumeData, limit = 10) {
     try {
-      const { skills = {}, experience = [] } = resumeData;
-      const allSkills = [...(skills.hard || []), ...(skills.soft || [])];
-      
+      const safeData = resumeData || {};
+      const skills = safeData.skills || {};
+      const experience = Array.isArray(safeData.experience) ? safeData.experience : [];
+
+      const rawSkills = [
+        ...(Array.isArray(skills.hard) ? skills.hard : []),
+        ...(Array.isArray(skills.soft) ? skills.soft : []),
+        ...(Array.isArray(skills.all) ? skills.all : [])
+      ].filter(s => typeof s === 'string' && s.trim());
+
+      const seen = new Set();
+      const allSkills = rawSkills.filter(s => {
+        const lower = s.trim().toLowerCase();
+        if (seen.has(lower)) return false;
+        seen.add(lower);
+        return true;
+      });
+
       // Calculate experience level
       const totalExperience = this.calculateTotalExperience(experience);
       const experienceLevel = this.determineExperienceLevel(totalExperience);
 
-      // Find potential matches
-      const jobs = await Job.find({ 
+      // Find potential active matches (including jobs without an expiryDate)
+      const now = new Date();
+      const jobs = await Job.find({
         isActive: true,
-        expiryDate: { $gt: new Date() }
-      }).limit(50); // Limit initial search for performance
+        $or: [
+          { expiryDate: { $gt: now } },
+          { expiryDate: null },
+          { expiryDate: { $exists: false } }
+        ]
+      }).limit(50);
 
-      const matches = await Promise.all(
-        jobs.map(async job => {
-          const requiredSkills = job.requiredSkills?.map(s => 
-            typeof s === 'string' ? s : s.name
-          ) || [];
-          
-          const matchScore = this.calculateMatchScore(allSkills, requiredSkills);
-          
-          // Boost score based on experience level match
-          const experienceBoost = this.getExperienceBoost(
-            experienceLevel, 
-            job.experienceLevel
-          );
+      const matches = jobs.map(job => {
+        const requiredSkills = (job.requiredSkills || [])
+          .map(s => (typeof s === 'string' ? s : s?.name))
+          .filter(s => typeof s === 'string' && s.trim());
 
-          const finalScore = Math.min(100, matchScore + experienceBoost);
+        const matchScore = this.calculateMatchScore(allSkills, requiredSkills);
 
-          return {
-            jobId: job._id,
-            matchScore: finalScore,
-            matchedSkills: this.getMatchedSkills(allSkills, requiredSkills),
-            missingSkills: this.getMissingSkills(allSkills, requiredSkills),
-            job: job
-          };
-        })
-      );
+        // Boost score based on experience level match
+        const experienceBoost = this.getExperienceBoost(
+          experienceLevel,
+          job.experienceLevel
+        );
+
+        const finalScore = Math.min(100, matchScore + experienceBoost);
+
+        return {
+          jobId: job._id,
+          matchScore: finalScore,
+          matchedSkills: this.getMatchedSkills(allSkills, requiredSkills),
+          missingSkills: this.getMissingSkills(allSkills, requiredSkills),
+          job
+        };
+      });
 
       // Sort by match score and return top matches
       return matches
@@ -84,24 +107,58 @@ class JobMatcherService {
    * Calculate total years of experience
    */
   calculateTotalExperience(experience) {
+    if (!Array.isArray(experience)) return 0;
+
     return experience.reduce((total, exp) => {
+      if (!exp) return total;
+
+      let years = 0;
       if (exp.duration) {
-        const years = this.parseDuration(exp.duration);
-        return total + years;
+        years = this.parseDuration(exp.duration);
       }
-      return total;
+      if (years === 0 && exp.startDate) {
+        const start = new Date(exp.startDate);
+        const end = exp.endDate ? new Date(exp.endDate) : new Date();
+        if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && end > start) {
+          years = (end - start) / (1000 * 60 * 60 * 24 * 365.25);
+        }
+      }
+      return total + years;
     }, 0);
   }
 
   /**
-   * Parse duration string to years
+   * Parse duration string to years (supports explicit units and year ranges like "2020-2022" or "2021 - Present")
    */
   parseDuration(duration) {
-    const yearMatch = duration.match(/(\d+)\s*years?/i);
-    if (yearMatch) return parseInt(yearMatch[1]);
+    if (typeof duration !== 'string') return 0;
 
-    const monthMatch = duration.match(/(\d+)\s*months?/i);
-    if (monthMatch) return parseInt(monthMatch[1]) / 12;
+    let totalYears = 0;
+    const yearMatch = duration.match(/(\d+(?:\.\d+)?)\s*years?/i);
+    if (yearMatch) {
+      totalYears += parseFloat(yearMatch[1]);
+    }
+
+    const monthMatch = duration.match(/(\d+(?:\.\d+)?)\s*months?/i);
+    if (monthMatch) {
+      totalYears += parseFloat(monthMatch[1]) / 12;
+    }
+
+    if (totalYears > 0) {
+      return totalYears;
+    }
+
+    const rangeMatch = duration.match(/(\b(?:19|20)\d{2}\b)\s*[-–to]+\s*(\b(?:19|20)\d{2}\b|present|current|now)/i);
+    if (rangeMatch) {
+      const startYear = parseInt(rangeMatch[1], 10);
+      const endRaw = rangeMatch[2].toLowerCase();
+      const endYear = ['present', 'current', 'now'].includes(endRaw)
+        ? new Date().getFullYear()
+        : parseInt(endRaw, 10);
+      if (endYear >= startYear) {
+        return Math.max(0.5, endYear - startYear);
+      }
+    }
 
     return 0;
   }
@@ -134,9 +191,12 @@ class JobMatcherService {
    * Get matched skills
    */
   getMatchedSkills(resumeSkills, jobSkills) {
-    const resumeSet = new Set(resumeSkills.map(s => s.toLowerCase()));
-    return jobSkills.filter(skill => 
-      resumeSet.has(skill.toLowerCase())
+    if (!Array.isArray(resumeSkills) || !Array.isArray(jobSkills)) return [];
+    const resumeSet = new Set(
+      resumeSkills.filter(s => typeof s === 'string').map(s => s.trim().toLowerCase())
+    );
+    return jobSkills.filter(skill =>
+      typeof skill === 'string' && resumeSet.has(skill.trim().toLowerCase())
     );
   }
 
@@ -144,9 +204,13 @@ class JobMatcherService {
    * Get missing skills
    */
   getMissingSkills(resumeSkills, jobSkills) {
-    const resumeSet = new Set(resumeSkills.map(s => s.toLowerCase()));
-    return jobSkills.filter(skill => 
-      !resumeSet.has(skill.toLowerCase())
+    if (!Array.isArray(jobSkills)) return [];
+    const safeResume = Array.isArray(resumeSkills) ? resumeSkills : [];
+    const resumeSet = new Set(
+      safeResume.filter(s => typeof s === 'string').map(s => s.trim().toLowerCase())
+    );
+    return jobSkills.filter(skill =>
+      typeof skill === 'string' && !resumeSet.has(skill.trim().toLowerCase())
     );
   }
 

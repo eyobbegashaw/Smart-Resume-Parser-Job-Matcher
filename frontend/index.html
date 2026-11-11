@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Enterprise AI Resume Parser & Job Matcher for the Ethiopian Talent Ecosystem — English & Amharic."
+    />
+    <title>TalentPulse ET — AI Resume Intelligence & Job Matcher</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Noto+Serif+Ethiopic:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('tp_theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var isDark = saved ? saved === 'dark' : prefersDark;
+          if (isDark) document.documentElement.classList.add('dark');
+          var lang = localStorage.getItem('tp_language');
+          if (lang === 'am' || lang === 'en') {
+            document.documentElement.lang = lang;
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="bg-surface-light text-slate-900 antialiased selection:bg-brand-500/20 selection:text-brand-700 dark:bg-surface-dark dark:text-slate-100 dark:selection:text-brand-300">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

@@ -31,15 +31,7 @@ const savedJobSchema = new mongoose.Schema({
       default: false
     }
   }],
-  tags: [String],
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  }
+  tags: [String]
 }, {
   timestamps: true
 });

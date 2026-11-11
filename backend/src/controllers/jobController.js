@@ -1,5 +1,8 @@
 const Job = require('../models/Job');
 const logger = require('../utils/logger');
+
+const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 /**
  * @desc    Get all jobs with filtering
  * @route   GET /api/jobs
@@ -15,41 +18,54 @@ exports.getJobs = async (req, res, next) => {
       jobType,
       experienceLevel,
       skill,
-      company
+      company,
+      minSalary,
+      maxSalary
     } = req.query;
+
+    const parsedPage = Math.max(1, parseInt(page, 10) || 1);
+    const parsedLimit = Math.min(50, Math.max(1, parseInt(limit, 10) || 10));
 
     // Build query
     const query = { isActive: true };
-    
+
     if (search) {
-      query.$text = { $search: search };
+      query.$text = { $search: String(search).trim() };
     }
-    
+
     if (location) {
-      query.location = new RegExp(location, 'i');
+      query.location = new RegExp(escapeRegex(location), 'i');
     }
-    
+
     if (jobType) {
       query.jobType = jobType;
     }
-    
+
     if (experienceLevel) {
       query.experienceLevel = experienceLevel;
     }
-    
+
     if (skill) {
-      query['requiredSkills.name'] = skill;
+      query['requiredSkills.name'] = new RegExp(`^${escapeRegex(skill)}$`, 'i');
     }
-    
+
     if (company) {
-      query.company = new RegExp(company, 'i');
+      query.company = new RegExp(escapeRegex(company), 'i');
+    }
+
+    if (minSalary !== undefined && !isNaN(Number(minSalary))) {
+      query['salary.max'] = { $gte: Number(minSalary) };
+    }
+
+    if (maxSalary !== undefined && !isNaN(Number(maxSalary))) {
+      query['salary.min'] = { $lte: Number(maxSalary) };
     }
 
     // Execute query with pagination
     const jobs = await Job.find(query)
       .sort({ postedDate: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
+      .limit(parsedLimit)
+      .skip((parsedPage - 1) * parsedLimit);
 
     const total = await Job.countDocuments(query);
 
@@ -57,8 +73,8 @@ exports.getJobs = async (req, res, next) => {
       success: true,
       count: jobs.length,
       total,
-      page: parseInt(page),
-      pages: Math.ceil(total / limit),
+      page: parsedPage,
+      pages: Math.ceil(total / parsedLimit),
       data: jobs
     });
   } catch (error) {
@@ -73,7 +89,11 @@ exports.getJobs = async (req, res, next) => {
  */
 exports.getJob = async (req, res, next) => {
   try {
-    const job = await Job.findById(req.params.id);
+    const job = await Job.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { views: 1 } },
+      { new: true }
+    );
 
     if (!job) {
       return res.status(404).json({
@@ -81,10 +101,6 @@ exports.getJob = async (req, res, next) => {
         error: 'Job not found'
       });
     }
-
-    // Increment view count
-    job.views += 1;
-    await job.save();
 
     res.status(200).json({
       success: true,
@@ -195,8 +211,9 @@ exports.getRecommendedJobs = async (req, res, next) => {
 
     // Populate matched jobs
     await latestResume.populate('matchedJobs.jobId');
-    
+
     const recommended = latestResume.matchedJobs
+      .filter(m => m.jobId && m.jobId.isActive !== false)
       .sort((a, b) => b.matchScore - a.matchScore)
       .map(m => ({
         ...m.jobId.toObject(),

@@ -1,0 +1,973 @@
+export const ETHIOPIAN_LOCATIONS = [
+  'Addis Ababa',
+  'Adama',
+  'Bahir Dar',
+  'Gondar',
+  'Hawassa',
+  'Mekelle',
+  'Jimma',
+  'Dire Dawa',
+  'Debre Zeit',
+  'Arba Minch',
+  'Dessie',
+  'Jijiga',
+  'Shashamane',
+  'Bishoftu',
+  'Sodo',
+  'Haramaya',
+  'Dilla',
+  'Nekemte',
+  'Debre Markos',
+  'Asosa',
+  'Gambela',
+  'Semera'
+];
+
+export const JOB_TYPES = ['Full-time', 'Part-time', 'Contract', 'Internship', 'Remote'];
+
+export const EXPERIENCE_LEVELS = ['Entry Level', 'Mid Level', 'Senior', 'Lead', 'Manager'];
+
+export const APPLICATION_STATUSES = ['saved', 'applied', 'interviewing', 'accepted', 'rejected'];
+
+export const translations = {
+  en: {
+    brandName: 'TalentPulse ET',
+    brandTagline: 'AI Career Intelligence',
+    nav: {
+      home: 'Overview',
+      dashboard: 'Dashboard',
+      resumes: 'Resume Lab',
+      savedJobs: 'Tracker',
+      settings: 'Settings',
+      adminJobs: 'Post Jobs',
+      signIn: 'Sign in',
+      getStarted: 'Get started',
+      signOut: 'Sign out',
+      account: 'Account'
+    },
+    theme: {
+      light: 'Light',
+      dark: 'Dark',
+      toggleLabel: 'Toggle color theme'
+    },
+    lang: {
+      en: 'EN',
+      am: 'አማ',
+      enFull: 'English',
+      amFull: 'Amharic (አማርኛ)'
+    },
+    common: {
+      loading: 'Loading...',
+      saving: 'Saving...',
+      save: 'Save changes',
+      cancel: 'Cancel',
+      delete: 'Delete',
+      edit: 'Edit',
+      view: 'View details',
+      back: 'Back',
+      search: 'Search',
+      filter: 'Filter',
+      clearFilters: 'Reset filters',
+      previous: 'Previous',
+      next: 'Next',
+      pageOf: 'Page {page} of {pages}',
+      totalResults: '{total} roles found',
+      noData: 'No data available yet',
+      retry: 'Try again',
+      close: 'Close',
+      confirm: 'Confirm',
+      required: 'Required',
+      optional: 'Optional',
+      add: 'Add',
+      etb: 'ETB',
+      perMonth: '/ mo',
+      perYear: '/ yr',
+      perHour: '/ hr',
+      views: '{count} views',
+      active: 'Active',
+      inactive: 'Inactive',
+      verified: 'Verified',
+      unverified: 'Unverified',
+      upTo: 'Up to {amount}',
+      error: 'Error'
+    },
+    landing: {
+      badge: 'AI Resume Intelligence for Ethiopia • EN & አማ',
+      heroTitlePrefix: 'Turn Every PDF Resume into',
+      heroTitleHighlight: 'Precision Ethiopian Job Matches',
+      heroSubtitle:
+        'Enterprise-grade AI resume parsing, bilingual English & Amharic skill diagnostics, real-time ATS scoring, and curated career matching across Addis Ababa and Ethiopia.',
+      ctaUpload: 'Analyze My Resume',
+      trustMetrics: [
+        { value: 'Bilingual AI', label: 'English & አማርኛ Insights' },
+        { value: '0–100 ATS', label: 'Actionable Score Audit' },
+        { value: '22+ Cities', label: 'Ethiopian Job Coverage' }
+      ],
+      previewCard: {
+        header: 'AI Evaluation Snapshot',
+        candidate: 'Dawit Bekele — Software Engineer',
+        location: 'Addis Ababa, Ethiopia',
+        scoreLabel: 'ATS Readiness Score',
+        scoreValue: 88,
+        matchedRole: 'Senior Full-Stack Engineer • 92% Match',
+        topSkills: ['TypeScript', 'Node.js', 'MongoDB', 'React', 'Amharic'],
+        insight: 'Strong backend architecture & quantified impact metrics. Add Kubernetes for +8% match lift.'
+      },
+      pipelineEyebrow: 'HOW IT WORKS',
+      pipelineTitle: 'Four-stage intelligent career pipeline',
+      pipelineSubtitle:
+        'Scroll through each stage from PDF ingestion to personalized skill-gap coaching tailored for local & remote roles.',
+      stepBadge: 'STEP {step}',
+      pipelineSteps: [
+        {
+          step: '01',
+          title: 'Drop Any PDF Resume',
+          description:
+            'Fast in-memory PDF text extraction up to 5MB with automatic validation and zero file clutter.'
+        },
+        {
+          step: '02',
+          title: 'AI Structured Extraction',
+          description:
+            'Detects contact info, education history, work timelines, languages, plus hard & soft skills.'
+        },
+        {
+          step: '03',
+          title: 'Smart Ethiopian Market Scoring',
+          description:
+            'Compares candidate skills against active roles in Addis Ababa, Adama, Hawassa, Bahir Dar & remote hubs.'
+        },
+        {
+          step: '04',
+          title: 'Bilingual Skill-Gap Roadmap',
+          description:
+            'Generates prioritized learning recommendations and gap analysis in English or Amharic on demand.'
+        }
+      ],
+      featuresEyebrow: 'ENTERPRISE CAPABILITIES',
+      featuresTitle: 'Engineered for clarity, speed, and hiring precision',
+      features: [
+        {
+          title: 'Structured Resume Studio',
+          desc: 'Turns dense multi-page PDFs into searchable timelines, categorized hard/soft skills, and prioritized ATS fixes.'
+        },
+        {
+          title: 'True Bilingual Experience (EN / አማ)',
+          desc: 'Switch the entire interface and AI evaluation output between English and Amharic effortlessly.'
+        },
+        {
+          title: 'AI Skill Gap Deep-Dive',
+          desc: 'Benchmark any parsed resume against any target role to uncover exact missing required vs. preferred skills.'
+        },
+        {
+          title: 'Application Pipeline Tracker',
+          desc: 'Track saved jobs through Saved, Applied, Interviewing, Accepted, and Rejected stages with dates & notes.'
+        },
+        {
+          title: 'Ethiopian Salary & City Filters',
+          desc: 'Filter by ETB salary bands, Full-time/Remote contracts, experience seniority, and 22+ regional hubs.'
+        },
+        {
+          title: 'Secure Cloud Persistence',
+          desc: 'MongoDB Atlas persistence, JWT access + refresh rotation, Google OAuth, and user-controlled account deletion.'
+        }
+      ],
+      liveJobsEyebrow: 'LIVE OPPORTUNITIES',
+      liveJobsTitle: 'Fresh active roles on the board',
+      liveJobsEmpty: 'No active jobs posted yet. Sign in as admin to publish roles or check back soon.',
+      finalCtaTitle: 'Ready to benchmark your resume against Ethiopia’s top roles?',
+      finalCtaSubtitle: 'Upload your PDF CV in seconds and uncover your highest-probability career matches.',
+      finalCtaPrimary: 'Create Free Workspace',
+      finalCtaSecondary: 'Sign in to Workspace'
+    },
+    auth: {
+      loginTitle: 'Welcome back',
+      loginSubtitle: 'Sign in to access your Resume Lab, AI matches, and job tracker.',
+      registerTitle: 'Create your workspace',
+      registerSubtitle: 'Start parsing resumes and discovering curated Ethiopian opportunities.',
+      forgotTitle: 'Reset your password',
+      forgotSubtitle: 'Enter your registered email and we will send reset instructions.',
+      resetTitle: 'Choose a new password',
+      resetSubtitle: 'Enter a strong password to regain access to your workspace.',
+      verifyTitle: 'Email verification',
+      verifying: 'Verifying your email address...',
+      verifiedSuccess: 'Your email is now verified. You can continue to your workspace.',
+      verifiedError: 'This verification link is invalid or has expired.',
+      callbackTitle: 'Completing Google sign-in...',
+      nameLabel: 'Full name',
+      namePlaceholder: 'Abebe Bikila',
+      emailLabel: 'Email address',
+      emailPlaceholder: 'you@company.com',
+      passwordLabel: 'Password',
+      passwordPlaceholder: 'At least 6 characters',
+      confirmPasswordLabel: 'Confirm password',
+      newPasswordLabel: 'New password',
+      rememberHint: 'Use a strong password with letters and numbers.',
+      signInBtn: 'Sign in',
+      signUpBtn: 'Create account',
+      sendResetBtn: 'Send reset link',
+      resetBtn: 'Update password',
+      googleBtn: 'Continue with Google',
+      orDivider: 'or continue with email',
+      forgotLink: 'Forgot password?',
+      noAccount: "Don't have an account?",
+      hasAccount: 'Already have an account?',
+      createOne: 'Create one',
+      signInHere: 'Sign in',
+      backToLogin: 'Back to sign in',
+      passwordMismatch: 'Passwords do not match',
+      passwordWeak: 'Password must be at least 6 characters',
+      otpStepAccount: 'Account',
+      otpStepVerify: 'Verify OTP',
+      otpStepWorkspace: 'Workspace',
+      otpTitle: 'Enter 6-digit verification code',
+      otpSubtitle: 'We sent a 6-digit OTP to your inbox. Enter it below to unlock your personal workspace.',
+      otpProviderGoogle: 'Google Account Signup',
+      otpProviderEmail: 'Email Signup',
+      otpSentTo: 'Sent to',
+      otpChangeEmail: 'Change email',
+      otpOpenGmail: 'Open Gmail',
+      otpPrefilledToast: '6-digit OTP copied from email and filled cleanly.',
+      otpPrefilledBanner: 'Code loaded from your email link. Review and click Verify to open your workspace.',
+      otpSentToast: '6-digit verification OTP sent to your inbox.',
+      otpVerifyRequiredToast: 'Please verify your 6-digit OTP sent to your inbox before continuing.',
+      otpResentToast: 'A fresh 6-digit OTP has been sent to your inbox.',
+      otpPasteBtn: 'Paste code',
+      otpCopyBtn: 'Copy code',
+      otpClearBtn: 'Clear',
+      otpClipboardEmpty: 'Clipboard does not contain a 6-digit code.',
+      otpClipboardDenied: 'Clipboard access blocked. Paste directly into the code boxes (Ctrl+V).',
+      otpCopiedToast: 'OTP copied to clipboard.',
+      otpVerifyBtn: 'Verify & Enter Workspace',
+      otpVerifyingBtn: 'Verifying OTP...',
+      otpVerifiedTitle: 'Verified! Entering your workspace',
+      otpVerifiedDesc: 'Redirecting you to your personal dashboard...',
+      otpResendBtn: 'Resend OTP',
+      otpResendIn: 'Resend in {seconds}s',
+      otpExpiresIn: 'Code expires in {time}',
+      otpExpired: 'Verification code expired — request a new one below.',
+      otpAttemptsLeft: '{count} attempts remaining before code lock.',
+      otpIncompleteError: 'Please enter all 6 digits of your verification code.',
+      otpEmailMissingError: 'Please enter the email address associated with your registration.',
+      otpCheckSpamTip: 'Did not receive the code? Check Spam/Promotions or click Resend OTP below.',
+      otpDeliveryWarn: 'Email delivery could not be confirmed automatically. Click Resend OTP or check your server SMTP settings.',
+      otpPreviewLink: 'Open Dev Inbox Preview',
+      otpBackToRegister: 'Back to registration',
+      forgotSentTitle: 'Reset link & code delivered to your inbox',
+      forgotSentDesc: 'Click the Reset Password button in your email — or copy the 6-digit reset code from your inbox and enter your New & Confirm Password below.',
+      forgotCodeLabel: '6-digit reset code from email',
+      forgotCodePlaceholder: '6-digit code (e.g. 482915)',
+      forgotCodePrefilled: 'Reset code copied from your email! Enter and confirm your new password below.',
+      forgotIncompleteCode: 'Please enter the 6-digit reset code from your email.',
+      forgotResendCooldown: 'Resend reset email in {seconds}s',
+      forgotResendBtn: 'Resend reset email',
+      forgotChangeEmail: 'Use different email',
+      resetSuccessToast: 'Password reset successful. Sign in with your new password.',
+      resetSuccessTitle: 'Password updated cleanly',
+      resetSuccessDesc: 'Redirecting you to sign in with your new password...',
+      resetExpiredAction: 'Request a new password reset link'
+    },
+    dashboard: {
+      title: 'Career Intelligence Hub',
+      subtitle: 'Live telemetry across your parsed resumes, skill portfolio, and active applications.',
+      uploadNewBtn: 'Upload Resume',
+      kpis: {
+        totalResumes: 'Parsed Resumes',
+        avgScore: 'Average ATS Score',
+        highScore: 'Peak ATS Score',
+        savedTracked: 'Tracked Roles'
+      },
+      pipelineTitle: 'Application Funnel',
+      topSkillsTitle: 'Most Extracted Skills',
+      recommendedTitle: 'AI-Recommended Matches',
+      recentResumesTitle: 'Recent Resume Evaluations',
+      noResumes: 'Upload your first PDF resume to unlock ATS scoring and tailored job matching.',
+      noSkills: 'Skills appear here automatically after parsing your first resume.',
+      noMatches: 'Complete a resume scan to receive personalized match percentages.',
+      viewAllResumes: 'Open Resume Lab',
+      scoreSuffix: '/ 100'
+    },
+    resumes: {
+      title: 'AI Resume Lab',
+      subtitle: 'Upload PDF CVs for structured AI extraction, ATS scoring, and job matching.',
+      uploadCardTitle: 'Upload & Analyze PDF Resume',
+      dropActive: 'Drop your PDF file here to begin',
+      dropIdle: 'Drag & drop your PDF resume here, or click to browse',
+      dropConstraints: 'PDF only • Max 5 MB • Processed securely in memory',
+      selectedFile: 'Selected file',
+      outputLanguage: 'AI Feedback Language',
+      analyzeBtn: 'Run AI Analysis',
+      analyzing: 'Analyzing resume...',
+      stages: [
+        'Uploading PDF payload securely',
+        'Extracting structured text blocks',
+        'Running AI skill & ATS audit',
+        'Matching against active Ethiopian roles'
+      ],
+      historyTitle: 'Your Resume Library',
+      emptyLibrary: 'No resumes uploaded yet. Upload one on the left to inspect insights.',
+      scoreLabel: 'ATS Score',
+      candidateProfile: 'Extracted Profile',
+      tabs: {
+        overview: 'Feedback & Diagnostics',
+        skills: 'Skills & Languages',
+        experience: 'Experience & Education',
+        matches: 'Matched Jobs'
+      },
+      strengths: 'Key Strengths',
+      weaknesses: 'Areas to Improve',
+      detailedFeedback: 'Actionable Diagnostics',
+      hardSkills: 'Technical & Hard Skills',
+      softSkills: 'Soft & Leadership Skills',
+      languagesSpoken: 'Languages',
+      experienceTitle: 'Work Experience',
+      educationTitle: 'Education History',
+      matchedJobsTitle: 'Matched Active Opportunities',
+      noMatchedJobs: 'No matching active jobs found yet for this resume.',
+      runGapBtn: 'AI Skill Gap',
+      runningGap: 'Analyzing gap...',
+      deleteResume: 'Delete Resume',
+      deleteConfirm: 'Delete "{name}" permanently? This cannot be undone.',
+      fileTooLarge: 'File exceeds the 5 MB limit.',
+      invalidFileType: 'Only PDF (.pdf) files are accepted.',
+      noSummary: 'No executive summary extracted.',
+      deletedToast: 'Resume deleted successfully',
+      roleFallback: 'Role',
+      unavailableJob: 'Role #{id} (no longer active)'
+    },
+    jobs: {
+      saveJob: 'Save Role',
+      unsaveJob: 'Saved',
+      matchBadge: '{score}% Match',
+      applyExternal: 'Apply Externally',
+      applyEmail: 'Apply via Email',
+      description: 'Role Overview',
+      responsibilities: 'Key Responsibilities',
+      requirements: 'Qualifications & Requirements',
+      requiredSkills: 'Required Skills',
+      preferredSkills: 'Preferred Skills',
+      salaryCompensation: 'Compensation',
+      negotiableSalary: 'Competitive / Negotiable',
+      postedOn: 'Posted',
+      expiresOn: 'Deadline',
+      skillGapCardTitle: 'AI Skill Gap Analysis',
+      skillGapSubtitle: 'Compare one of your parsed resumes directly against this job.',
+      selectResumeLabel: 'Select Parsed Resume',
+      runGapAnalysis: 'Analyze Skill Gap',
+      loginForGap: 'Sign in and upload a resume to run a personalized AI skill-gap audit.',
+      uploadFirstForGap: 'Upload a completed resume first to compare against this role.',
+      matchedSkills: 'Matched Skills',
+      missingRequired: 'Missing Required Skills',
+      missingPreferred: 'Missing Preferred Skills',
+      recommendations: 'Recommended Actions & Courses',
+      matchScore: 'Gap Readiness',
+      jobSavedToast: 'Job saved to your application tracker',
+      jobUnsavedToast: 'Removed from saved jobs'
+    },
+    savedJobs: {
+      title: 'Application Pipeline Tracker',
+      subtitle: 'Manage bookmarked roles, interview dates, personal notes, and progress stages.',
+      allTab: 'All',
+      empty: 'No tracked jobs in this stage yet. Bookmark matched roles from Resume Lab or Dashboard to organize your search.',
+      notesLabel: 'Private Notes',
+      notesPlaceholder: 'Recruiter contact, prep focus, salary expectations...',
+      tagsLabel: 'Tags (comma separated)',
+      appDateLabel: 'Applied Date',
+      interviewDateLabel: 'Interview Date',
+      saveUpdates: 'Save Tracker Entry',
+      remove: 'Remove',
+      updatedToast: 'Application tracker updated'
+    },
+    settings: {
+      title: 'Account & Preferences',
+      subtitle: 'Manage your profile details, bilingual & theme defaults, and account security.',
+      tabs: {
+        profile: 'Profile',
+        preferences: 'Preferences',
+        security: 'Security & Danger Zone'
+      },
+      phoneLabel: 'Ethiopian Phone Number',
+      phonePlaceholder: '+251911223344 or 0911223344',
+      phoneHint: 'Must follow Ethiopian format (+251 or 0 followed by 9 digits).',
+      locationLabel: 'City / Location',
+      bioLabel: 'Professional Bio',
+      bioPlaceholder: 'Summarize your specialization, industries, and goals...',
+      skillsLabel: 'Profile Skills',
+      skillsPlaceholder: 'Add a skill and press Enter or Add',
+      verifyBannerTitle: 'Verify your email address',
+      verifyBannerDesc: 'Confirm your email to receive job alerts and secure password resets.',
+      resendVerificationBtn: 'Resend Verification Email',
+      prefLanguage: 'Default Language',
+      prefTheme: 'Default Appearance',
+      prefEmailNotif: 'Email Notifications',
+      prefEmailNotifDesc: 'Receive resume analysis completions and deadline reminders.',
+      prefJobAlerts: 'Weekly AI Job Alerts',
+      prefJobAlertsDesc: 'Get top matching Ethiopian opportunities delivered automatically.',
+      passwordSectionTitle: 'Change Password',
+      currentPasswordLabel: 'Current password',
+      newPasswordLabel: 'New password (min 6 chars)',
+      updatePasswordBtn: 'Update Password',
+      oauthNoPassword: 'Signed in via Google OAuth. Local password changes are disabled.',
+      dangerTitle: 'Delete Account',
+      dangerDesc:
+        'Permanently deletes your account, all uploaded resumes, and your entire job tracker history.',
+      deleteAccountBtn: 'Delete My Account',
+      deletePromptConfirm: 'Are you absolutely sure? Type DELETE to confirm permanent removal.',
+      profileSavedToast: 'Profile updated successfully',
+      prefsSavedToast: 'Preferences saved',
+      passwordUpdatedToast: 'Password updated successfully',
+      accountDeletedToast: 'Account deleted permanently'
+    },
+    admin: {
+      title: 'Admin Job Publisher',
+      subtitle: 'Create, edit, and moderate job listings stored in MongoDB Atlas.',
+      newJobBtn: 'New Job Listing',
+      editJobTitle: 'Edit Job Listing',
+      createJobTitle: 'Publish New Job',
+      formTitle: 'Job Title',
+      formCompany: 'Company Name',
+      formLocation: 'Location',
+      formJobType: 'Job Type',
+      formExp: 'Experience Level',
+      formIndustry: 'Industry',
+      formDesc: 'Job Description (min 50 characters)',
+      formSkills: 'Required Skills (comma separated)',
+      formPreferredSkills: 'Preferred Skills (comma separated)',
+      formResponsibilities: 'Responsibilities (one per line)',
+      formRequirements: 'Requirements (one per line)',
+      formSalaryMin: 'Min Salary (ETB)',
+      formSalaryMax: 'Max Salary (ETB)',
+      formSalaryPeriod: 'Salary Period',
+      periodMonthly: 'Monthly',
+      periodYearly: 'Yearly',
+      periodHourly: 'Hourly',
+      formAppUrl: 'External Application URL',
+      formAppEmail: 'Application Email',
+      createBtn: 'Publish Job',
+      updateBtn: 'Save Job Updates',
+      deleteConfirm: 'Permanently delete "{title}"?',
+      deletedToast: 'Job listing deleted',
+      skillsRequiredError: 'Please enter at least one required skill',
+      salaryRangeError: 'Minimum salary cannot exceed maximum salary',
+      accessDenied: 'Admin privileges required to manage job listings.'
+    },
+    enums: {
+      jobTypes: {
+        'Full-time': 'Full-time',
+        'Part-time': 'Part-time',
+        Contract: 'Contract',
+        Internship: 'Internship',
+        Remote: 'Remote'
+      },
+      experienceLevels: {
+        'Entry Level': 'Entry Level',
+        'Mid Level': 'Mid Level',
+        Senior: 'Senior',
+        Lead: 'Lead',
+        Manager: 'Manager'
+      },
+      applicationStatuses: {
+        saved: 'Saved',
+        applied: 'Applied',
+        interviewing: 'Interviewing',
+        accepted: 'Accepted',
+        rejected: 'Rejected'
+      },
+      resumeStatuses: {
+        pending: 'Pending',
+        processing: 'Processing',
+        completed: 'Completed',
+        failed: 'Failed'
+      },
+      severities: {
+        high: 'High Impact',
+        medium: 'Medium Impact',
+        low: 'Low Impact'
+      }
+    },
+    footer: {
+      desc: 'AI-powered resume evaluation and intelligent job matching built for Ethiopian professionals and modern hiring teams.',
+      platform: 'Platform',
+      resources: 'Workspace',
+      status: 'Database: MongoDB Atlas • In-Process Scheduler',
+      rights: '© {year} TalentPulse ET. All rights reserved.'
+    }
+  },
+
+  am: {
+    brandName: 'TalentPulse ET',
+    brandTagline: 'ብልህ የሥራ ረዳት',
+    nav: {
+      home: 'መነሻ',
+      dashboard: 'ዳሽቦርድ',
+      resumes: 'የሲቪ ትንተና',
+      savedJobs: 'የተቀመጡ ሥራዎች',
+      settings: 'ቅንብሮች',
+      adminJobs: 'ሥራ አስተዳደር',
+      signIn: 'ግባ',
+      getStarted: 'ጀምር',
+      signOut: 'ውጣ',
+      account: 'መለያ'
+    },
+    theme: {
+      light: 'ብርሃን',
+      dark: 'ጨለማ',
+      toggleLabel: 'ገጽታ ቀይር'
+    },
+    lang: {
+      en: 'EN',
+      am: 'አማ',
+      enFull: 'እንግሊዝኛ (English)',
+      amFull: 'አማርኛ'
+    },
+    common: {
+      loading: 'በመጫን ላይ...',
+      saving: 'በማስቀመጥ ላይ...',
+      save: 'ለውጦችን አስቀምጥ',
+      cancel: 'ሰርዝ',
+      delete: 'አጥፋ',
+      edit: 'አርትዕ',
+      view: 'ዝርዝር ተመልከት',
+      back: 'ተመለስ',
+      search: 'ፈልግ',
+      filter: 'አጣራ',
+      clearFilters: 'ማጣሪያዎችን አጽዳ',
+      previous: 'ቀዳሚ',
+      next: 'ቀጣይ',
+      pageOf: 'ገጽ {page} ከ {pages}',
+      totalResults: '{total} ሥራዎች ተገኝተዋል',
+      noData: 'እስካሁን መረጃ የለም',
+      retry: 'እንደገና ሞክር',
+      close: 'ዝጋ',
+      confirm: 'አረጋግጥ',
+      required: 'አስፈላጊ',
+      optional: 'አማራጭ',
+      add: 'ጨምር',
+      etb: 'ብር',
+      perMonth: '/ በወር',
+      perYear: '/ በዓመት',
+      perHour: '/ በሰዓት',
+      views: '{count} እይታዎች',
+      active: 'ንቁ',
+      inactive: 'ያልነቃ',
+      verified: 'የተረጋገጠ',
+      unverified: 'ያልተረጋገጠ',
+      upTo: 'እስከ {amount}',
+      error: 'ስህተት'
+    },
+    landing: {
+      badge: 'ብልህ የሲቪ ትንተና እና የሥራ ማዛመጃ ለኢትዮጵያ • EN & አማ',
+      heroTitlePrefix: 'እያንዳንዱን PDF ሲቪ ወደ',
+      heroTitleHighlight: 'ትክክለኛ የኢትዮጵያ የሥራ ዕድል ይቀይሩ',
+      heroSubtitle:
+        'በAI የተደገፈ የሲቪ ትንተና፣ በእንግሊዝኛ እና በአማርኛ የክህሎት ምክር፣ የATS ውጤት ግምገማ እና በአዲስ አበባና መላው ኢትዮጵያ ከሚገኙ ክፍት ሥራዎች ጋር ብልህ ማዛመድ።',
+      ctaUpload: 'ሲቪዬን ተንትን',
+      trustMetrics: [
+        { value: 'ሁለት ቋንቋ AI', label: 'እንግሊዝኛ እና አማርኛ ትንተና' },
+        { value: '0–100 ATS', label: 'ጥልቅ የሲቪ ነጥብ ግምገማ' },
+        { value: '22+ ከተሞች', label: 'የኢትዮጵያ የሥራ ሽፋን' }
+      ],
+      previewCard: {
+        header: 'የAI ግምገማ ናሙና',
+        candidate: 'ዳዊት በቀለ — ሶፍትዌር መሐንዲስ',
+        location: 'አዲስ አበባ፣ ኢትዮጵያ',
+        scoreLabel: 'የATS ዝግጁነት ነጥብ',
+        scoreValue: 88,
+        matchedRole: 'ሲኒየር ፉል-ስታክ መሐንዲስ • 92% ተዛማጅ',
+        topSkills: ['TypeScript', 'Node.js', 'MongoDB', 'React', 'አማርኛ'],
+        insight: 'ጠንካራ የባክኤንድ ልምድ እና የተለካ ውጤት አለዎት። Kubernetes በመጨመር ተዛማጅነትን +8% ያሳድጉ።'
+      },
+      pipelineEyebrow: 'እንዴት ይሰራል',
+      pipelineTitle: 'አራት ደረጃዎች ያሉት ብልህ የሥራ ሂደት',
+      pipelineSubtitle:
+        'ሲቪዎን ከመስቀል ጀምሮ የክህሎት ክፍተት ምክር እስከማግኘት ድረስ እያንዳንዱን ደረጃ ይመልከቱ።',
+      stepBadge: 'ደረጃ {step}',
+      pipelineSteps: [
+        {
+          step: '01',
+          title: 'ማንኛውንም PDF ሲቪ ይስቀሉ',
+          description: 'እስከ 5ሜባ የሚደርስ PDF በፍጥነት በማንበብ ያለምንም ውስብስብ ሂደት ጽሑፉን ያወጣል።'
+        },
+        {
+          step: '02',
+          title: 'በAI የተዋቀረ ትንተና',
+          description: 'የግል መረጃ፣ ትምህርት፣ የሥራ ልምድ፣ ቋንቋዎች እና ቴክኒካል/ማህበራዊ ክህሎቶችን ይለያል።'
+        },
+        {
+          step: '03',
+          title: 'ከኢትዮጵያ የሥራ ገበያ ጋር ማዛመድ',
+          description: 'በአዲስ አበባ፣ አዳማ፣ ሀዋሳ፣ ባህር ዳር እና የርቀት ሥራዎች መካከል ተዛማጅነቱን ያሰላል።'
+        },
+        {
+          step: '04',
+          title: 'በአማርኛና እንግሊዝኛ የክህሎት ምክር',
+          description: 'ለተመረጡ ሥራዎች የሚጎድሉ ክህሎቶችን እና የመማሪያ አቅጣጫዎችን በፈለጉት ቋንቋ ያቀርባል።'
+        }
+      ],
+      featuresEyebrow: 'የኢንተርፕራይዝ አቅም',
+      featuresTitle: 'ለፍጥነት፣ ለትክክለኛነት እና ለተሻለ ቅጥር የተገነባ',
+      features: [
+        {
+          title: 'ዘመናዊ የሲቪ መገምገሚያ',
+          desc: 'ረጅም PDF ሲቪዎችን ወደ ተዋቀረ የሥራ ልምድ፣ ክህሎት ዝርዝር እና የATS ማሻሻያ ነጥቦች ይቀይራል።'
+        },
+        {
+          title: 'ሙሉ የሁለት ቋንቋ ድጋፍ (EN / አማ)',
+          desc: 'መላውን መድረክ እና የAI ግምገማ ውጤቶችን በአንድ ጠቅታ በአማርኛ ወይም በእንግሊዝኛ ይጠቀሙ።'
+        },
+        {
+          title: 'የክህሎት ክፍተት ትንተና',
+          desc: 'ሲቪዎን ከሚፈልጉት ሥራ ጋር በማነጻጸር የሚያስፈልጉ እና ተመራጭ የጎደሉ ክህሎቶችን ይለያል።'
+        },
+        {
+          title: 'የማመልከቻ መከታተያ ሰሌዳ',
+          desc: 'የተቀመጡ ሥራዎችን በተቀመጠ፣ ተመልክቷል፣ ቃለ መጠይቅ እና ተቀባይነት ደረጃዎች ይከታተሉ።'
+        },
+        {
+          title: 'የኢትዮጵያ ደመወዝና ከተማ ማጣሪያ',
+          desc: 'በኢትዮጵያ ብር ደመወዝ፣ በሙሉ/ትርፍ ጊዜ፣ የልምድ ደረጃ እና በ22+ ከተሞች ሥራዎችን ያጣሩ።'
+        },
+        {
+          title: 'አስተማማኝ የክላውድ ደህንነት',
+          desc: 'በMongoDB Atlas ውሂብ ማከማቻ፣ JWT ደህንነት፣ Google መግቢያ እና የመለያ ቁጥጥር የተገነባ።'
+        }
+      ],
+      liveJobsEyebrow: 'አዲስ ሥራዎች',
+      liveJobsTitle: 'በመድረኩ ላይ ያሉ ንቁ የሥራ ዕድሎች',
+      liveJobsEmpty: 'እስካሁን ንቁ ሥራዎች አልተለጠፉም። በአስተዳዳሪ ይለጥፉ ወይም ቆይተው ይመልከቱ።',
+      finalCtaTitle: 'ሲቪዎን ከኢትዮጵያ ምርጥ የሥራ ዕድሎች ጋር ለማነጻጸር ዝግጁ ነዎት?',
+      finalCtaSubtitle: 'PDF ሲቪዎን በሰከንዶች ውስጥ ይስቀሉ እና ከፍተኛ ተዛማጅ ሥራዎችን ያግኙ።',
+      finalCtaPrimary: 'ነጻ መለያ ፍጠር',
+      finalCtaSecondary: 'ወደ መለያዎ ይግቡ'
+    },
+    auth: {
+      loginTitle: 'እንኳን በደህና ተመለሱ',
+      loginSubtitle: 'የሲቪ ትንተናዎን፣ የAI ማዛመጃዎን እና የተቀመጡ ሥራዎችን ለማግኘት ይግቡ።',
+      registerTitle: 'አዲስ መለያ ይፍጠሩ',
+      registerSubtitle: 'ሲቪዎን መተንተን እና የኢትዮጵያ የሥራ ዕድሎችን ማግኘት ይጀምሩ።',
+      forgotTitle: 'ይለፍ ቃልዎን ይቀይሩ',
+      forgotSubtitle: 'የተመዘገበ ኢሜይልዎን ያስገቡና የማደሻ መመሪያ እንልክልዎታለን።',
+      resetTitle: 'አዲስ ይለፍ ቃል ያስገቡ',
+      resetSubtitle: 'ወደ መለያዎ ለመመለስ ጠንካራ አዲስ ይለፍ ቃል ይምረጡ።',
+      verifyTitle: 'የኢሜይል ማረጋገጫ',
+      verifying: 'ኢሜይልዎ በመረጋገጥ ላይ ነው...',
+      verifiedSuccess: 'ኢሜይልዎ ተረጋግጧል። አሁን መቀጠል ይችላሉ።',
+      verifiedError: 'ይህ የማረጋገጫ አገናኝ ልክ ያልሆነ ወይም ጊዜው ያለፈበት ነው።',
+      callbackTitle: 'የGoogle መግቢያ በመጠናቀቅ ላይ ነው...',
+      nameLabel: 'ሙሉ ስም',
+      namePlaceholder: 'አበበ ቢቂላ',
+      emailLabel: 'ኢሜይል አድራሻ',
+      emailPlaceholder: 'you@company.com',
+      passwordLabel: 'ይለፍ ቃል',
+      passwordPlaceholder: 'ቢያንስ 6 ቁምፊዎች',
+      confirmPasswordLabel: 'ይለፍ ቃል አረጋግጥ',
+      newPasswordLabel: 'አዲስ ይለፍ ቃል',
+      rememberHint: 'ፊደሎችን እና ቁጥሮችን ያካተተ ጠንካራ ይለፍ ቃል ይጠቀሙ።',
+      signInBtn: 'ግባ',
+      signUpBtn: 'መለያ ፍጠር',
+      sendResetBtn: 'የማደሻ አገናኝ ላክ',
+      resetBtn: 'ይለፍ ቃል አዘምን',
+      googleBtn: 'በGoogle ይቀጥሉ',
+      orDivider: 'ወይም በኢሜይል ይቀጥሉ',
+      forgotLink: 'ይለፍ ቃል ረሱ?',
+      noAccount: 'መለያ የለዎትም?',
+      hasAccount: 'ቀድሞ መለያ አለዎት?',
+      createOne: 'መለያ ፍጠር',
+      signInHere: 'ግባ',
+      backToLogin: 'ወደ መግቢያ ተመለስ',
+      passwordMismatch: 'ይለፍ ቃሎቹ አይዛመዱም',
+      passwordWeak: 'ይለፍ ቃል ቢያንስ 6 ቁምፊዎች መሆን አለበት',
+      otpStepAccount: 'መለያ',
+      otpStepVerify: 'OTP አረጋግጥ',
+      otpStepWorkspace: 'የግል መድረክ',
+      otpTitle: 'ባለ 6-አሃዝ ማረጋገጫ ኮድ ያስገቡ',
+      otpSubtitle: 'ባለ 6-አሃዝ የማረጋገጫ ኮድ ወደ ኢሜይልዎ ልከናል። ወደ የግል መድረክዎ ለመግባት ከታች ያስገቡት።',
+      otpProviderGoogle: 'የGoogle መለያ ምዝገባ',
+      otpProviderEmail: 'የኢሜይል ምዝገባ',
+      otpSentTo: 'የተላከበት',
+      otpChangeEmail: 'ኢሜይል ቀይር',
+      otpOpenGmail: 'Gmail ክፈት',
+      otpPrefilledToast: 'ባለ 6-አሃዝ OTP ከኢሜይሉ ተቀድቶ ተሞልቷል።',
+      otpPrefilledBanner: 'ኮዱ ከኢሜይል አገናኝዎ ተሞልቷል። ወደ መድረክዎ ለመግባት አረጋግጥን ይጫኑ።',
+      otpSentToast: 'ባለ 6-አሃዝ ማረጋገጫ OTP ወደ ኢሜይልዎ ተልኳል።',
+      otpVerifyRequiredToast: 'ከመቀጠልዎ በፊት ወደ ኢሜይልዎ የተላከውን ባለ 6-አሃዝ OTP ያረጋግጡ።',
+      otpResentToast: 'አዲስ ባለ 6-አሃዝ OTP ወደ ኢሜይልዎ ተልኳል።',
+      otpPasteBtn: 'ኮድ ለጥፍ',
+      otpCopyBtn: 'ኮድ ቅዳ',
+      otpClearBtn: 'አጽዳ',
+      otpClipboardEmpty: 'በቅንጥብ ሰሌዳዎ ውስጥ ባለ 6-አሃዝ ኮድ አልተገኘም።',
+      otpClipboardDenied: 'የቅንጥብ ሰሌዳ መዳረሻ ተከልክሏል። በሳጥኖቹ ውስጥ Ctrl+V ይጫኑ።',
+      otpCopiedToast: 'OTP ወደ ቅንጥብ ሰሌዳ ተቀድቷል።',
+      otpVerifyBtn: 'አረጋግጥ እና ወደ መድረክ ግባ',
+      otpVerifyingBtn: 'OTP በማረጋገጥ ላይ...',
+      otpVerifiedTitle: 'ተረጋግጧል! ወደ የግል መድረክዎ በመግባት ላይ',
+      otpVerifiedDesc: 'ወደ የግል ዳሽቦርድዎ በመሸጋገር ላይ...',
+      otpResendBtn: 'OTP እንደገና ላክ',
+      otpResendIn: 'በ{seconds} ሰከንድ እንደገና ይላኩ',
+      otpExpiresIn: 'ኮዱ በ{time} ውስጥ ያበቃል',
+      otpExpired: 'የማረጋገጫ ኮዱ ጊዜው አልፎበታል — ከታች አዲስ ይጠይቁ።',
+      otpAttemptsLeft: 'ኮዱ ከመቆለፉ በፊት {count} ሙከራዎች ቀርተዋል።',
+      otpIncompleteError: 'እባክዎ ሁሉንም 6 የማረጋገጫ ኮድ አሃዞች ያስገቡ።',
+      otpEmailMissingError: 'እባክዎ የተመዘገቡበትን የኢሜይል አድራሻ ያስገቡ።',
+      otpCheckSpamTip: 'ኮዱ አልደረሰዎትም? Spam/Promotions አቃፊ ይመልከቱ ወይም OTP እንደገና ላክ ይጫኑ።',
+      otpDeliveryWarn: 'የኢሜይል መላክ በራስ-ሰር አልተረጋገጠም። OTP እንደገና ላክ ይጫኑ ወይም የSMTP ቅንብሮችን ያረጋግጡ።',
+      otpPreviewLink: 'የሙከራ ኢሜይል መልዕክት ክፈት',
+      otpBackToRegister: 'ወደ ምዝገባ ተመለስ',
+      forgotSentTitle: 'የይለፍ ቃል መቀየሪያ አገናኝ እና ኮድ ወደ ኢሜይልዎ ተልኳል',
+      forgotSentDesc: 'በኢሜይልዎ ውስጥ ያለውን አገናኝ ይጫኑ — ወይም ባለ 6-አሃዝ ኮዱን ከኢሜይልዎ ቀድተው አዲሱን ይለፍ ቃልዎን ከታች ያስገቡ።',
+      forgotCodeLabel: 'ከኢሜይል የተላከ ባለ 6-አሃዝ ኮድ',
+      forgotCodePlaceholder: 'ባለ 6-አሃዝ ኮድ (ለምሳሌ 482915)',
+      forgotCodePrefilled: 'የመቀየሪያ ኮዱ ከኢሜይልዎ ተቀድቷል! አዲሱን ይለፍ ቃልዎን ከታች ያስገቡና ያረጋግጡ።',
+      forgotIncompleteCode: 'እባክዎ ከኢሜይልዎ የተላከውን ባለ 6-አሃዝ ኮድ ያስገቡ።',
+      forgotResendCooldown: 'በ{seconds} ሰከንድ እንደገና ይላኩ',
+      forgotResendBtn: 'የመቀየሪያ ኢሜይል እንደገና ላክ',
+      forgotChangeEmail: 'ሌላ ኢሜይል ተጠቀም',
+      resetSuccessToast: 'የይለፍ ቃልዎ በተሳካ ሁኔታ ተቀይሯል። በአዲሱ ይለፍ ቃልዎ ይግቡ።',
+      resetSuccessTitle: 'የይለፍ ቃልዎ ተዘምኗል',
+      resetSuccessDesc: 'በአዲሱ ይለፍ ቃልዎ ወደ መግቢያ ገጽ በመሸጋገር ላይ...',
+      resetExpiredAction: 'አዲስ የይለፍ ቃል መቀየሪያ አገናኝ ይጠይቁ'
+    },
+    dashboard: {
+      title: 'የሥራ እና ሲቪ ማዕከል',
+      subtitle: 'የተተነተኑ ሲቪዎች፣ የክህሎት ክምችት እና የማመልከቻ ሂደት አጠቃላይ እይታ።',
+      uploadNewBtn: 'ሲቪ ስቀል',
+      kpis: {
+        totalResumes: 'የተተነተኑ ሲቪዎች',
+        avgScore: 'አማካይ የATS ነጥብ',
+        highScore: 'ከፍተኛ የATS ነጥብ',
+        savedTracked: 'የተከታተሉ ሥራዎች'
+      },
+      pipelineTitle: 'የማመልከቻ ደረጃዎች',
+      topSkillsTitle: 'በብዛት የተገኙ ክህሎቶች',
+      recommendedTitle: 'በAI የተመረጡ ሥራዎች',
+      recentResumesTitle: 'የቅርብ ጊዜ የሲቪ ግምገማዎች',
+      noResumes: 'የATS ነጥብ እና ተዛማጅ ሥራዎችን ለማግኘት የመጀመሪያውን PDF ሲቪ ይስቀሉ።',
+      noSkills: 'ሲቪ ከተነተነ በኋላ ዋና ክህሎቶችዎ እዚህ ይታያሉ።',
+      noMatches: 'የተዛማጅነት መቶኛ ለማየት የሲቪ ትንተና ያጠናቅቁ።',
+      viewAllResumes: 'ወደ ሲቪ ክፍል ሂድ',
+      scoreSuffix: '/ 100'
+    },
+    resumes: {
+      title: 'የAI ሲቪ መተንተኛ',
+      subtitle: 'በAI የተዋቀረ የመረጃ ማውጫ፣ የATS ነጥብ እና የሥራ ማዛመጃ።',
+      uploadCardTitle: 'PDF ሲቪ ስቀል እና ተንትን',
+      dropActive: 'ለመጀመር PDF ፋይሉን እዚህ ይልቀቁ',
+      dropIdle: 'PDF ሲቪዎን እዚህ ይጎትቱ ወይም ለመምረጥ ይጫኑ',
+      dropConstraints: 'PDF ብቻ • ከፍተኛ 5 ሜባ • ደህንነቱ በተጠበቀ ሁኔታ ይሰራል',
+      selectedFile: 'የተመረጠ ፋይል',
+      outputLanguage: 'የAI ግምገማ ቋንቋ',
+      analyzeBtn: 'የAI ትንተና ጀምር',
+      analyzing: 'ሲቪ በመተንተን ላይ...',
+      stages: [
+        'PDF በደህንነት በመጫን ላይ',
+        'የሲቪ ጽሑፍ በማውጣት ላይ',
+        'በAI የATS እና ክህሎት ግምገማ',
+        'ከኢትዮጵያ ክፍት ሥራዎች ጋር በማዛመድ ላይ'
+      ],
+      historyTitle: 'የእርስዎ ሲቪዎች',
+      emptyLibrary: 'እስካሁን የተሰቀለ ሲቪ የለም። በግራ በኩል ይስቀሉ።',
+      scoreLabel: 'የATS ነጥብ',
+      candidateProfile: 'የተገኘ የእጩ መገለጫ',
+      tabs: {
+        overview: 'ግምገማ እና ምክሮች',
+        skills: 'ክህሎቶች እና ቋንቋዎች',
+        experience: 'ልምድ እና ትምህርት',
+        matches: 'ተዛማጅ ሥራዎች'
+      },
+      strengths: 'ጠንካራ ጎኖች',
+      weaknesses: 'መሻሻል ያለባቸው ጉዳዮች',
+      detailedFeedback: 'ዝርዝር የማሻሻያ ምክሮች',
+      hardSkills: 'ቴክኒካል ክህሎቶች',
+      softSkills: 'ማህበራዊ ክህሎቶች',
+      languagesSpoken: 'ቋንቋዎች',
+      experienceTitle: 'የሥራ ልምድ',
+      educationTitle: 'የትምህርት ታሪክ',
+      matchedJobsTitle: 'ተዛማጅ ንቁ የሥራ ዕድሎች',
+      noMatchedJobs: 'ለዚህ ሲቪ እስካሁን ተዛማጅ ንቁ ሥራ አልተገኘም።',
+      runGapBtn: 'የክህሎት ክፍተት',
+      runningGap: 'በመተንተን ላይ...',
+      deleteResume: 'ሲቪ ሰርዝ',
+      deleteConfirm: '"{name}" ን እስከመጨረሻው ይሰርዙ? ይህ ድርጊት አይመለስም።',
+      fileTooLarge: 'የፋይሉ መጠን ከ5 ሜባ በላይ ነው።',
+      invalidFileType: 'PDF (.pdf) ፋይሎች ብቻ ይፈቀዳሉ።',
+      noSummary: 'ማጠቃለያ ጽሑፍ አልተገኘም።',
+      deletedToast: 'ሲቪው በተሳካ ሁኔታ ተሰርዟል',
+      roleFallback: 'የሥራ ድርሻ',
+      unavailableJob: 'የሥራ መደብ #{id} (ከአሁን በኋላ ንቁ አይደለም)'
+    },
+    jobs: {
+      saveJob: 'ሥራ አስቀምጥ',
+      unsaveJob: 'ተቀምጧል',
+      matchBadge: '{score}% ተዛማጅ',
+      applyExternal: 'በድረ-ገጽ አመልክት',
+      applyEmail: 'በኢሜይል አመልክት',
+      description: 'የሥራ ዝርዝር',
+      responsibilities: 'ዋና ኃላፊነቶች',
+      requirements: 'ብቃቶች እና መስፈርቶች',
+      requiredSkills: 'የሚፈለጉ ክህሎቶች',
+      preferredSkills: 'ተመራጭ ክህሎቶች',
+      salaryCompensation: 'ደመወዝ እና ጥቅማጥቅም',
+      negotiableSalary: 'በስምምነት',
+      postedOn: 'የተለጠፈበት',
+      expiresOn: 'የማብቂያ ቀን',
+      skillGapCardTitle: 'የAI ክህሎት ክፍተት ትንተና',
+      skillGapSubtitle: 'የተተነተነ ሲቪዎን ከዚህ ሥራ መስፈርቶች ጋር በቀጥታ ያነጻጽሩ።',
+      selectResumeLabel: 'የተተነተነ ሲቪ ይምረጡ',
+      runGapAnalysis: 'የክህሎት ክፍተት ተንትን',
+      loginForGap: 'የAI ክህሎት ክፍተት ትንተና ለማድረግ ይግቡና ሲቪ ይስቀሉ።',
+      uploadFirstForGap: 'ለማነጻጸር በቅድሚያ የተጠናቀቀ ሲቪ ይስቀሉ።',
+      matchedSkills: 'የተዛመዱ ክህሎቶች',
+      missingRequired: 'የጎደሉ አስፈላጊ ክህሎቶች',
+      missingPreferred: 'የጎደሉ ተመራጭ ክህሎቶች',
+      recommendations: 'የማሻሻያ ምክሮች እና ኮርሶች',
+      matchScore: 'የብቃት ዝግጁነት',
+      jobSavedToast: 'ሥራው በመከታተያዎ ውስጥ ተቀምጧል',
+      jobUnsavedToast: 'ሥራው ከተቀመጡት ተወግዷል'
+    },
+    savedJobs: {
+      title: 'የማመልከቻ መከታተያ',
+      subtitle: 'የተቀመጡ ሥራዎችን፣ የቃለ መጠይቅ ቀናትን፣ ማስታወሻዎችን እና ደረጃዎችን ያስተዳድሩ።',
+      allTab: 'ሁሉም',
+      empty: 'በዚህ ደረጃ የተቀመጠ ሥራ የለም። ከሲቪ ትንተና ወይም ዳሽቦርድ ተዛማጅ ሥራዎችን ያስቀምጡ።',
+      notesLabel: 'የግል ማስታወሻ',
+      notesPlaceholder: 'የመልማይ ስም፣ የዝግጅት ነጥቦች፣ የደመወዝ ግምት...',
+      tagsLabel: 'መለያዎች (በኮማ የተለዩ)',
+      appDateLabel: 'ያመለከቱበት ቀን',
+      interviewDateLabel: 'የቃለ መጠይቅ ቀን',
+      saveUpdates: 'መከታተያ አስቀምጥ',
+      remove: 'አስወግድ',
+      updatedToast: 'የማመልከቻ መከታተያ ተዘምኗል'
+    },
+    settings: {
+      title: 'መለያ እና ምርጫዎች',
+      subtitle: 'የግል መረጃዎን፣ የቋንቋ እና ገጽታ ምርጫዎችን እንዲሁም ደህንነትዎን ያስተዳድሩ።',
+      tabs: {
+        profile: 'መገለጫ',
+        preferences: 'ምርጫዎች',
+        security: 'ደህንነት እና መለያ'
+      },
+      phoneLabel: 'የኢትዮጵያ ስልክ ቁጥር',
+      phonePlaceholder: '+251911223344 ወይም 0911223344',
+      phoneHint: 'የኢትዮጵያ ስልክ ቅርጸት (+251 ወይም 0 እና 9 አሃዞች) መሆን አለበት።',
+      locationLabel: 'ከተማ / አካባቢ',
+      bioLabel: 'ሙያዊ መግለጫ',
+      bioPlaceholder: 'ሙያዊ ልምድዎን እና ግቦችዎን በአጭሩ ይግለጹ...',
+      skillsLabel: 'የመገለጫ ክህሎቶች',
+      skillsPlaceholder: 'ክህሎት ያስገቡና ጨምር ይጫኑ',
+      verifyBannerTitle: 'ኢሜይልዎን ያረጋግጡ',
+      verifyBannerDesc: 'የሥራ ማሳወቂያዎችን እና የይለፍ ቃል እገዛ ለማግኘት ኢሜይልዎን ያረጋግጡ።',
+      resendVerificationBtn: 'የማረጋገጫ ኢሜይል እንደገና ላክ',
+      prefLanguage: 'ነባሪ ቋንቋ',
+      prefTheme: 'ነባሪ ገጽታ',
+      prefEmailNotif: 'የኢሜይል ማሳወቂያዎች',
+      prefEmailNotifDesc: 'የሲቪ ትንተና ውጤቶችን እና የማብቂያ ቀን ማስታወሻዎችን ያግኙ።',
+      prefJobAlerts: 'ሳምንታዊ የAI ሥራ ማሳወቂያዎች',
+      prefJobAlertsDesc: 'ምርጥ ተዛማጅ የኢትዮጵያ ሥራዎችን በራስ-ሰር ይቀበሉ።',
+      passwordSectionTitle: 'ይለፍ ቃል ቀይር',
+      currentPasswordLabel: 'የአሁኑ ይለፍ ቃል',
+      newPasswordLabel: 'አዲስ ይለፍ ቃል (ቢያንስ 6 ቁምፊ)',
+      updatePasswordBtn: 'ይለፍ ቃል አዘምን',
+      oauthNoPassword: 'በGoogle መለያ ገብተዋል። የአካባቢ ይለፍ ቃል መቀየር አይቻልም።',
+      dangerTitle: 'መለያ ሰርዝ',
+      dangerDesc: 'መለያዎን፣ የተሰቀሉ ሲቪዎችን እና የተቀመጡ ሥራዎችን በሙሉ እስከመጨረሻው ይሰርዛል።',
+      deleteAccountBtn: 'መለያዬን ሰርዝ',
+      deletePromptConfirm: 'እርግጠኛ ነዎት? እስከመጨረሻው ለመሰረዝ DELETE ብለው ይጻፉ።',
+      profileSavedToast: 'መገለጫው በተሳካ ሁኔታ ተዘምኗል',
+      prefsSavedToast: 'ምርጫዎች ተቀምጠዋል',
+      passwordUpdatedToast: 'የይለፍ ቃል በተሳካ ሁኔታ ተዘምኗል',
+      accountDeletedToast: 'መለያዎ እስከመጨረሻው ተሰርዟል'
+    },
+    admin: {
+      title: 'የአስተዳዳሪ የሥራ ማስታወቂያ ፓነል',
+      subtitle: 'በMongoDB Atlas ውስጥ ያሉ የሥራ ማስታወቂያዎችን ይፍጠሩ፣ ያርትዑ እና ያስተዳድሩ።',
+      newJobBtn: 'አዲስ ሥራ ፍጠር',
+      editJobTitle: 'የሥራ ማስታወቂያ አርትዕ',
+      createJobTitle: 'አዲስ ሥራ ለጥፍ',
+      formTitle: 'የሥራ መደብ ስም',
+      formCompany: 'የኩባንያ ስም',
+      formLocation: 'አካባቢ',
+      formJobType: 'የሥራ አይነት',
+      formExp: 'የልምድ ደረጃ',
+      formIndustry: 'ዘርፍ',
+      formDesc: 'የሥራ መግለጫ (ቢያንስ 50 ቁምፊዎች)',
+      formSkills: 'የሚፈለጉ ክህሎቶች (በኮማ የተለዩ)',
+      formPreferredSkills: 'ተመራጭ ክህሎቶች (በኮማ የተለዩ)',
+      formResponsibilities: 'ኃላፊነቶች (በየመስመሩ አንድ)',
+      formRequirements: 'መስፈርቶች (በየመስመሩ አንድ)',
+      formSalaryMin: 'ዝቅተኛ ደመወዝ (ብር)',
+      formSalaryMax: 'ከፍተኛ ደመወዝ (ብር)',
+      formSalaryPeriod: 'የክፍያ ጊዜ',
+      periodMonthly: 'ወርሃዊ',
+      periodYearly: 'ዓመታዊ',
+      periodHourly: 'በሰዓት',
+      formAppUrl: 'የማመልከቻ URL',
+      formAppEmail: 'የማመልከቻ ኢሜይል',
+      createBtn: 'ሥራ ለጥፍ',
+      updateBtn: 'ለውጦችን አስቀምጥ',
+      deleteConfirm: '"{title}" ን እስከመጨረሻው ይሰርዙ?',
+      deletedToast: 'የሥራ ማስታወቂያው ተሰርዟል',
+      skillsRequiredError: 'እባክዎ ቢያንስ አንድ የሚፈለግ ክህሎት ያስገቡ',
+      salaryRangeError: 'ዝቅተኛው ደመወዝ ከከፍተኛው ደመወዝ መብለጥ አይችልም',
+      accessDenied: 'ሥራዎችን ለማስተዳደር የአስተዳዳሪ ፈቃድ ያስፈልጋል።'
+    },
+    enums: {
+      jobTypes: {
+        'Full-time': 'ሙሉ ጊዜ',
+        'Part-time': 'ትርፍ ጊዜ',
+        Contract: 'ውል',
+        Internship: 'ልምምድ',
+        Remote: 'ርቀት'
+      },
+      experienceLevels: {
+        'Entry Level': 'መግቢያ ደረጃ',
+        'Mid Level': 'መካከለኛ ደረጃ',
+        Senior: 'ከፍተኛ ደረጃ',
+        Lead: 'መሪ',
+        Manager: 'አስተዳዳሪ'
+      },
+      applicationStatuses: {
+        saved: 'የተቀመጠ',
+        applied: 'አመልክቻለሁ',
+        interviewing: 'ቃለ መጠይቅ',
+        accepted: 'ተቀባይነት አግኝቷል',
+        rejected: 'ውድቅ የተደረገ'
+      },
+      resumeStatuses: {
+        pending: 'በመጠባበቅ ላይ',
+        processing: 'በሂደት ላይ',
+        completed: 'ተጠናቋል',
+        failed: 'አልተሳካም'
+      },
+      severities: {
+        high: 'ከፍተኛ ተጽዕኖ',
+        medium: 'መካከለኛ ተጽዕኖ',
+        low: 'ዝቅተኛ ተጽዕኖ'
+      }
+    },
+    footer: {
+      desc: 'ለኢትዮጵያውያን ባለሙያዎች እና ዘመናዊ አሰሪዎች የተገነባ በAI የተደገፈ የሲቪ መገምገሚያ እና የሥራ ማዛመጃ መድረክ።',
+      platform: 'መድረክ',
+      resources: 'የሥራ ቦታ',
+      status: 'ዳታቤዝ: MongoDB Atlas • In-Process Scheduler',
+      rights: '© {year} TalentPulse ET. መብቱ በህግ የተጠበቀ ነው።'
+    }
+  }
+};
+
+/**
+ * Resolve nested translation path and interpolate `{token}` placeholders.
+ */
+export const translate = (language, key, vars = {}, fallbackValue) => {
+  const dict = translations[language] || translations.en;
+  const fallback = translations.en;
+
+  const lookup = (source) =>
+    key.split('.').reduce((acc, part) => (acc && acc[part] !== undefined ? acc[part] : undefined), source);
+
+  const raw = lookup(dict) ?? lookup(fallback) ?? fallbackValue ?? key;
+  if (typeof raw !== 'string') return raw;
+
+  return raw.replace(/\{(\w+)\}/g, (_, token) =>
+    vars[token] !== undefined ? String(vars[token]) : `{${token}}`
+  );
+};

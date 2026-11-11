@@ -1,66 +1,79 @@
+const fs = require('fs');
+const path = require('path');
+const { execFile } = require('child_process');
+const util = require('util');
 const mongoose = require('mongoose');
 const logger = require('../utils/logger');
+
+const execFileAsync = util.promisify(execFile);
 
 class Database {
   constructor() {
     this.isConnected = false;
+    this.listenersAttached = false;
   }
 
   /**
-   * Connect to MongoDB
+   * Connect to MongoDB (supports MongoDB Atlas mongodb+srv:// URIs)
    */
   async connect() {
-    if (this.isConnected) {
+    if (this.isConnected && mongoose.connection.readyState === 1) {
       logger.info('Using existing database connection');
-      return;
+      return mongoose.connection;
+    }
+
+    const uri = process.env.MONGODB_URI;
+    if (!uri) {
+      throw new Error(
+        'MONGODB_URI environment variable is required (e.g., MongoDB Atlas connection string in backend/.env)'
+      );
+    }
+
+    if (/<(?:db_)?username>|<(?:db_)?password>|<cluster-url>/i.test(uri)) {
+      throw new Error(
+        'MONGODB_URI in backend/.env still contains placeholder text (such as <db_username>). Replace placeholders with your real MongoDB Atlas credentials.'
+      );
     }
 
     try {
       const options = {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        autoIndex: process.env.NODE_ENV === 'development',
-        serverSelectionTimeoutMS: 5000,
+        autoIndex: process.env.NODE_ENV !== 'production',
+        serverSelectionTimeoutMS: 10000,
         socketTimeoutMS: 45000,
-        family: 4,
         maxPoolSize: 10,
-        minPoolSize: 2,
-        maxIdleTimeMS: 10000,
+        minPoolSize: 1,
+        maxIdleTimeMS: 30000,
         retryWrites: true,
         retryReads: true
       };
 
-      const conn = await mongoose.connect(process.env.MONGODB_URI, options);
-      
+      if (!this.listenersAttached) {
+        mongoose.connection.on('error', (err) => {
+          logger.error('MongoDB connection error:', err);
+          this.isConnected = false;
+        });
+
+        mongoose.connection.on('disconnected', () => {
+          logger.warn('MongoDB disconnected');
+          this.isConnected = false;
+        });
+
+        mongoose.connection.on('reconnected', () => {
+          logger.info('MongoDB reconnected');
+          this.isConnected = true;
+        });
+
+        this.listenersAttached = true;
+      }
+
+      const conn = await mongoose.connect(uri, options);
       this.isConnected = true;
-      
-      logger.info(`MongoDB Connected: ${conn.connection.host}`);
 
-      // Handle connection events
-      mongoose.connection.on('error', (err) => {
-        logger.error('MongoDB connection error:', err);
-        this.isConnected = false;
-      });
-
-      mongoose.connection.on('disconnected', () => {
-        logger.warn('MongoDB disconnected');
-        this.isConnected = false;
-      });
-
-      mongoose.connection.on('reconnected', () => {
-        logger.info('MongoDB reconnected');
-        this.isConnected = true;
-      });
-
-      // Graceful shutdown
-      process.on('SIGINT', async () => {
-        await this.disconnect();
-        process.exit(0);
-      });
+      logger.info(`MongoDB Connected: ${conn.connection.host}/${conn.connection.name}`);
 
       return conn;
-
     } catch (error) {
+      this.isConnected = false;
       logger.error('MongoDB connection error:', error);
       throw error;
     }
@@ -70,7 +83,7 @@ class Database {
    * Disconnect from MongoDB
    */
   async disconnect() {
-    if (!this.isConnected) {
+    if (!this.isConnected && mongoose.connection.readyState === 0) {
       return;
     }
 
@@ -89,7 +102,7 @@ class Database {
    */
   getConnectionStatus() {
     return {
-      isConnected: this.isConnected,
+      isConnected: mongoose.connection.readyState === 1,
       readyState: mongoose.connection.readyState,
       host: mongoose.connection.host,
       name: mongoose.connection.name
@@ -97,18 +110,17 @@ class Database {
   }
 
   /**
-   * Create database indexes
+   * Create database indexes for all registered Mongoose models
    */
   async createIndexes() {
-    if (!this.isConnected) {
+    if (mongoose.connection.readyState !== 1) {
       await this.connect();
     }
 
     try {
-      const collections = await mongoose.connection.db.collections();
-
-      for (let collection of collections) {
-        await collection.createIndexes();
+      const modelNames = mongoose.modelNames();
+      for (const modelName of modelNames) {
+        await mongoose.model(modelName).createIndexes();
       }
 
       logger.info('Database indexes created successfully');
@@ -139,25 +151,29 @@ class Database {
    * Backup database
    */
   async backupDatabase() {
-    const { exec } = require('child_process');
-    const util = require('util');
-    const execAsync = util.promisify(exec);
-    
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI environment variable is required');
+    }
+
+    const backupDir = path.resolve(__dirname, '../../backups');
+    fs.mkdirSync(backupDir, { recursive: true });
+
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const backupPath = `./backups/backup-${timestamp}.gz`;
-    
+    const backupPath = path.join(backupDir, `backup-${timestamp}.gz`);
+
     try {
-      const { stdout, stderr } = await execAsync(
-        `mongodump --uri="${process.env.MONGODB_URI}" --archive=${backupPath} --gzip`
-      );
+      const { stderr } = await execFileAsync('mongodump', [
+        `--uri=${process.env.MONGODB_URI}`,
+        `--archive=${backupPath}`,
+        '--gzip'
+      ]);
 
       if (stderr) {
-        logger.error('Backup stderr:', stderr);
+        logger.info('Backup output:', stderr);
       }
 
       logger.info(`Database backup created: ${backupPath}`);
       return { success: true, path: backupPath };
-
     } catch (error) {
       logger.error('Error backing up database:', error);
       throw error;
@@ -168,22 +184,24 @@ class Database {
    * Restore database from backup
    */
   async restoreDatabase(backupPath) {
-    const { exec } = require('child_process');
-    const util = require('util');
-    const execAsync = util.promisify(exec);
-    
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI environment variable is required');
+    }
+
     try {
-      const { stdout, stderr } = await execAsync(
-        `mongorestore --uri="${process.env.MONGODB_URI}" --archive=${backupPath} --gzip --drop`
-      );
+      const { stderr } = await execFileAsync('mongorestore', [
+        `--uri=${process.env.MONGODB_URI}`,
+        `--archive=${path.resolve(backupPath)}`,
+        '--gzip',
+        '--drop'
+      ]);
 
       if (stderr) {
-        logger.error('Restore stderr:', stderr);
+        logger.info('Restore output:', stderr);
       }
 
       logger.info(`Database restored from: ${backupPath}`);
       return { success: true };
-
     } catch (error) {
       logger.error('Error restoring database:', error);
       throw error;

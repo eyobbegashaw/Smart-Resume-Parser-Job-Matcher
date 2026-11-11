@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { protect, authorize } = require('../middleware/auth');
+const { searchLimiter } = require('../middleware/rateLimiter');
+const { validate } = require('../middleware/validation');
 const {
   getJobs,
   getJob,
@@ -10,14 +12,14 @@ const {
   getRecommendedJobs
 } = require('../controllers/jobController');
 
-// Public routes
-router.get('/', getJobs);
+// Public & user routes
+router.get('/', searchLimiter, validate('searchJobs'), getJobs);
 router.get('/recommended', protect, getRecommendedJobs);
-router.get('/:id', getJob);
+router.get('/:id', validate('validateId'), getJob);
 
 // Admin only routes
-router.post('/', protect, authorize('admin'), createJob);
-router.put('/:id', protect, authorize('admin'), updateJob);
-router.delete('/:id', protect, authorize('admin'), deleteJob);
+router.post('/', protect, authorize('admin'), validate('createJob'), createJob);
+router.put('/:id', protect, authorize('admin'), validate('validateId'), updateJob);
+router.delete('/:id', protect, authorize('admin'), validate('validateId'), deleteJob);
 
 module.exports = router;

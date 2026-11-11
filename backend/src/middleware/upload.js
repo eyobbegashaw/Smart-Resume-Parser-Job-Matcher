@@ -114,8 +114,9 @@ const cleanupOldFiles = async (hours = 24) => {
   }
 };
 
-// Run cleanup every day
-setInterval(() => cleanupOldFiles(24), 24 * 60 * 60 * 1000);
+// Run cleanup every day without keeping the event loop alive
+const cleanupInterval = setInterval(() => cleanupOldFiles(24), 24 * 60 * 60 * 1000);
+cleanupInterval.unref();
 
 module.exports = {
   upload,

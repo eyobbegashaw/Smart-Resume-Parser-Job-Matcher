@@ -82,6 +82,7 @@ const jobSchema = new mongoose.Schema({
     enum: ['manual', 'scraped', 'api'],
     default: 'manual'
   },
+  sourceName: String,
   sourceUrl: String
 }, {
   timestamps: true

@@ -55,14 +55,12 @@ Smart Resume Parser & Job Matcher addresses the critical gap between Ethiopian g
 
 ### Frontend
 - **React 18** - UI library
+- **Vite** - Build tool and dev server
 - **React Router 6** - Navigation
-- **Tailwind CSS** - Styling
-- **Framer Motion** - Animations
-- **React Dropzone** - File upload
-- **React Hot Toast** - Notifications
-- **React Icons** - Icon library
-- **Chart.js** - Data visualization
-- **Axios** - HTTP client
+- **Tailwind CSS** - Styling & dark/light theming
+- **GSAP + ScrollTrigger** - Scroll-driven animations
+- **Lucide React** - Icon library
+- **Axios** - HTTP client & JWT refresh interceptors
 
 ### Backend
 - **Node.js** - Runtime environment
@@ -74,8 +72,7 @@ Smart Resume Parser & Job Matcher addresses the critical gap between Ethiopian g
 - **Multer** - File upload
 - **PDF-Parse** - PDF text extraction
 - **Google Generative AI** - Gemini AI integration
-- **Bull** - Queue management
-- **Redis** - Caching and queues
+- **node-cron** - Scheduled background tasks
 - **Winston** - Logging
 - **Nodemailer** - Email service
 - **Cheerio** - Web scraping
@@ -98,25 +95,17 @@ project-5-resume-parser/
 │   ├── tests/              # Backend tests
 │   └── package.json
 │
-├── frontend/                # Frontend React app
-│   ├── public/             # Static files
+├── frontend/                # Frontend React + Vite app
+│   ├── index.html
+│   ├── tailwind.config.js
+│   ├── vite.config.js
 │   └── src/
-│       ├── components/      # React components
-│       │   ├── common/      # Reusable components
-│       │   ├── auth/        # Authentication components
-│       │   ├── upload/      # File upload components
-│       │   ├── analysis/    # Resume analysis components
-│       │   ├── jobs/        # Job-related components
-│       │   ├── profile/     # User profile components
-│       │   ├── dashboard/   # Dashboard components
-│       │   └── landing/     # Landing page components
-│       ├── pages/           # Page components
-│       ├── hooks/           # Custom React hooks
-│       ├── context/         # React context providers
-│       ├── services/        # API services
-│       ├── utils/           # Utility functions
-│       ├── translations/    # i18n translations
-│       └── styles/          # CSS styles
+│       ├── components/      # Shared UI components
+│       ├── contexts/        # Auth, Theme, Language, Toast providers
+│       ├── i18n/            # English & Amharic dictionaries
+│       ├── pages/           # Route pages (Landing, Dashboard, Resumes, Job Detail, Saved Jobs, Settings, Admin)
+│       ├── services/        # Axios client & API endpoints
+│       └── utils/           # Salary, date & score formatters
 │   └── package.json
 │
 ├── docker/                   # Docker configuration
@@ -129,8 +118,7 @@ project-5-resume-parser/
 ### Prerequisites
 - Node.js >= 18.0.0
 - npm >= 9.0.0
-- MongoDB >= 5.0
-- Redis >= 6.0 (optional, for queues)
+- MongoDB Atlas cluster (online MongoDB)
 - Google Gemini API key
 
 ### Installation
@@ -189,8 +177,8 @@ npm run db:seed
 PORT=5000
 NODE_ENV=development
 
-# Database
-MONGODB_URI=mongodb://localhost:27017/resume_parser
+# Database (MongoDB Atlas)
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster-url>/resume_parser?retryWrites=true&w=majority&appName=ResumeParser
 
 # JWT
 JWT_SECRET=your-super-secret-jwt-key-change-this
@@ -212,11 +200,6 @@ SMTP_USER=your-email@gmail.com
 SMTP_PASS=your-app-password
 SMTP_FROM=noreply@resumeparser.et
 
-# Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=
-
 # Frontend URL
 FRONTEND_URL=http://localhost:5173
 
@@ -226,9 +209,8 @@ CONTACT_EMAIL=contact@resumeparser.et
 
 ### Frontend (.env)
 ```env
-VITE_API_URL=http://localhost:5000/api
-VITE_GOOGLE_CLIENT_ID=your-google-client-id
-VITE_GA_ID=your-google-analytics-id
+# Leave blank in development to use the Vite proxy (/api -> http://localhost:5000)
+VITE_API_URL=http://localhost:5000
 ```
 
 ## 📚 API Documentation

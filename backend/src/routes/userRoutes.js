@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { body } = require('express-validator');
+const { body, param } = require('express-validator');
 const { protect } = require('../middleware/auth');
 const {
   getProfile,
@@ -17,14 +17,19 @@ const {
 
 // Validation rules
 const profileValidation = [
-  body('name').optional().notEmpty().withMessage('Name cannot be empty'),
+  body('name').optional().trim().notEmpty().withMessage('Name cannot be empty'),
   body('phone').optional().matches(/^(\+251|0)[1-9]\d{8}$/).withMessage('Invalid phone number'),
   body('email').optional().isEmail().withMessage('Invalid email'),
   body('location').optional().isString(),
   body('bio').optional().isString().isLength({ max: 500 })
 ];
 
+const jobIdParamValidation = [
+  param('jobId').isMongoId().withMessage('Invalid job ID format')
+];
+
 const savedJobValidation = [
+  ...jobIdParamValidation,
   body('status').optional().isIn(['saved', 'applied', 'interviewing', 'rejected', 'accepted']),
   body('notes').optional().isString().isLength({ max: 500 }),
   body('tags').optional().isArray()
@@ -51,7 +56,7 @@ router.get('/resumes', getUserResumes);
 router.get('/saved-jobs', getSavedJobs);
 router.post('/saved-jobs/:jobId', savedJobValidation, saveJob);
 router.put('/saved-jobs/:jobId', savedJobValidation, updateSavedJob);
-router.delete('/saved-jobs/:jobId', removeSavedJob);
+router.delete('/saved-jobs/:jobId', jobIdParamValidation, removeSavedJob);
 
 // Stats routes
 router.get('/stats', getUserStats);

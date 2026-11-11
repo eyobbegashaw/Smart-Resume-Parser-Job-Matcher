@@ -328,18 +328,19 @@ class Translator {
   }
 
   /**
-   * Translate a key
+   * Translate a key (pass lang explicitly for request-safe concurrent translation)
    */
-  t(key, params = {}) {
-    let text = this.translations[this.language]?.[key] || 
-               this.translations.en[key] || 
+  t(key, params = {}, lang = null) {
+    const targetLang = lang || this.language;
+    let text = this.translations[targetLang]?.[key] ||
+               this.translations.en[key] ||
                key;
-    
-    // Replace parameters
+
+    // Replace all occurrences of each parameter
     Object.keys(params).forEach(param => {
-      text = text.replace(`{${param}}`, params[param]);
+      text = text.replaceAll(`{${param}}`, String(params[param] ?? ''));
     });
-    
+
     return text;
   }
 

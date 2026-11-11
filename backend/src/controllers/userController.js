@@ -1,5 +1,7 @@
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const Resume = require('../models/Resume');
+const Job = require('../models/Job');
 const SavedJob = require('../models/SavedJob');
 const logger = require('../utils/logger');
 const { validationResult } = require('express-validator');
@@ -13,9 +15,16 @@ const { validationResult } = require('express-validator');
 exports.getProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id)
-      .select('-password')
+      .select('-password -refreshToken')
       .populate('resumes', 'fileName parsedData analysis.score createdAt')
       .populate('savedJobs');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -25,6 +34,7 @@ exports.getProfile = async (req, res, next) => {
     next(error);
   }
 };
+
 /**
  * @desc    Update user profile
  * @route   PUT /api/users/profile
@@ -43,13 +53,22 @@ exports.updateProfile = async (req, res, next) => {
     const { name, phone, location, bio, skills, preferences } = req.body;
 
     const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
 
-    if (name) user.name = name;
-    if (phone) user.phone = phone;
-    if (location) user.location = location;
-    if (bio) user.bio = bio;
-    if (skills) user.skills = skills;
-    if (preferences) user.preferences = { ...user.preferences, ...preferences };
+    if (name !== undefined) user.name = name;
+    if (phone !== undefined) user.phone = phone;
+    if (location !== undefined) user.location = location;
+    if (bio !== undefined) user.bio = bio;
+    if (skills !== undefined) user.skills = skills;
+    if (preferences && typeof preferences === 'object') {
+      const existingPrefs = user.preferences?.toObject?.() || user.preferences || {};
+      user.preferences = { ...existingPrefs, ...preferences };
+    }
 
     await user.save();
 
@@ -78,13 +97,14 @@ exports.updateProfile = async (req, res, next) => {
  */
 exports.getUserResumes = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 10));
 
     const resumes = await Resume.find({ userId: req.user.id })
       .sort('-createdAt')
-      .limit(limit * 1)
+      .limit(limit)
       .skip((page - 1) * limit)
-      .select('fileName parsedData.name parsedData.skills analysis.score createdAt');
+      .select('fileName parsedData.name parsedData.skills analysis.score status createdAt');
 
     const total = await Resume.countDocuments({ userId: req.user.id });
 
@@ -92,7 +112,7 @@ exports.getUserResumes = async (req, res, next) => {
       success: true,
       count: resumes.length,
       total,
-      page: parseInt(page),
+      page,
       pages: Math.ceil(total / limit),
       data: resumes
     });
@@ -108,32 +128,29 @@ exports.getUserResumes = async (req, res, next) => {
  */
 exports.getSavedJobs = async (req, res, next) => {
   try {
-    const { status, page = 1, limit = 10 } = req.query;
+    const { status } = req.query;
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 10));
 
-    const query = { userId: req.user.id };
+    const activeJobIds = await Job.find({ isActive: true }).distinct('_id');
+    const query = { userId: req.user.id, jobId: { $in: activeJobIds } };
     if (status) query.status = status;
 
     const savedJobs = await SavedJob.find(query)
-      .populate({
-        path: 'jobId',
-        match: { isActive: true }
-      })
+      .populate('jobId')
       .sort('-createdAt')
-      .limit(limit * 1)
+      .limit(limit)
       .skip((page - 1) * limit);
 
     const total = await SavedJob.countDocuments(query);
 
-    // Filter out jobs that are no longer active
-    const filteredJobs = savedJobs.filter(job => job.jobId !== null);
-
     res.status(200).json({
       success: true,
-      count: filteredJobs.length,
+      count: savedJobs.length,
       total,
-      page: parseInt(page),
+      page,
       pages: Math.ceil(total / limit),
-      data: filteredJobs
+      data: savedJobs
     });
   } catch (error) {
     next(error);
@@ -147,8 +164,24 @@ exports.getSavedJobs = async (req, res, next) => {
  */
 exports.saveJob = async (req, res, next) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
+      });
+    }
+
     const { jobId } = req.params;
-    const { notes, tags } = req.body;
+    const { notes, tags, status } = req.body;
+
+    const job = await Job.findById(jobId);
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        error: 'Job not found'
+      });
+    }
 
     // Check if already saved
     const existing = await SavedJob.findOne({
@@ -166,14 +199,14 @@ exports.saveJob = async (req, res, next) => {
     const savedJob = await SavedJob.create({
       userId: req.user.id,
       jobId,
+      status: status || 'saved',
       notes,
-      tags,
-      createdAt: new Date()
+      tags
     });
 
-    // Add to user's saved jobs
+    // Add to user's saved jobs without duplicating
     await User.findByIdAndUpdate(req.user.id, {
-      $push: { savedJobs: jobId }
+      $addToSet: { savedJobs: jobId }
     });
 
     res.status(201).json({
@@ -192,6 +225,14 @@ exports.saveJob = async (req, res, next) => {
  */
 exports.updateSavedJob = async (req, res, next) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
+      });
+    }
+
     const { jobId } = req.params;
     const { status, notes, tags, applicationDate, interviewDate } = req.body;
 
@@ -212,8 +253,7 @@ exports.updateSavedJob = async (req, res, next) => {
     if (tags) savedJob.tags = tags;
     if (applicationDate) savedJob.applicationDate = applicationDate;
     if (interviewDate) savedJob.interviewDate = interviewDate;
-    
-    savedJob.updatedAt = new Date();
+
     await savedJob.save();
 
     res.status(200).json({
@@ -232,6 +272,14 @@ exports.updateSavedJob = async (req, res, next) => {
  */
 exports.removeSavedJob = async (req, res, next) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
+      });
+    }
+
     const { jobId } = req.params;
 
     const result = await SavedJob.findOneAndDelete({
@@ -267,11 +315,11 @@ exports.removeSavedJob = async (req, res, next) => {
  */
 exports.getUserStats = async (req, res, next) => {
   try {
-    const userId = req.user.id;
+    const userObjectId = new mongoose.Types.ObjectId(req.user.id);
 
     // Get resume stats
     const resumeStats = await Resume.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId) } },
+      { $match: { userId: userObjectId } },
       {
         $group: {
           _id: null,
@@ -285,7 +333,7 @@ exports.getUserStats = async (req, res, next) => {
 
     // Get saved jobs stats
     const savedJobsStats = await SavedJob.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId) } },
+      { $match: { userId: userObjectId } },
       {
         $group: {
           _id: '$status',
@@ -309,7 +357,7 @@ exports.getUserStats = async (req, res, next) => {
 
     // Get most common skills from resumes
     const skillsStats = await Resume.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId) } },
+      { $match: { userId: userObjectId } },
       { $unwind: '$parsedData.skills.all' },
       {
         $group: {
@@ -345,16 +393,32 @@ exports.getUserStats = async (req, res, next) => {
  */
 exports.updatePreferences = async (req, res, next) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
+      });
+    }
+
     const { language, darkMode, emailNotifications, jobAlerts } = req.body;
 
     const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    const existingPrefs = user.preferences?.toObject?.() || user.preferences || {};
 
     user.preferences = {
-      ...user.preferences,
-      language: language || user.preferences?.language,
-      darkMode: darkMode !== undefined ? darkMode : user.preferences?.darkMode,
-      emailNotifications: emailNotifications !== undefined ? emailNotifications : user.preferences?.emailNotifications,
-      jobAlerts: jobAlerts !== undefined ? jobAlerts : user.preferences?.jobAlerts
+      ...existingPrefs,
+      language: language || existingPrefs.language,
+      darkMode: darkMode !== undefined ? darkMode : existingPrefs.darkMode,
+      emailNotifications: emailNotifications !== undefined ? emailNotifications : existingPrefs.emailNotifications,
+      jobAlerts: jobAlerts !== undefined ? jobAlerts : existingPrefs.jobAlerts
     };
 
     await user.save();

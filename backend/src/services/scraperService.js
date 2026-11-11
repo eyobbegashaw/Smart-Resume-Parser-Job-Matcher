@@ -92,25 +92,30 @@ class ScraperService {
         },
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
+        },
+        timeout: 10000
       });
 
       const $ = cheerio.load(response.data);
       const jobs = [];
 
       $('.job-listing-item').each((i, element) => {
+        const applyHref = $(element).find('a.apply-link').attr('href');
+        const sourceHref = $(element).find('a').attr('href');
+
         const job = {
           title: $(element).find('.job-title').text().trim(),
           company: $(element).find('.company-name').text().trim(),
           location: $(element).find('.location').text().trim(),
           description: $(element).find('.description').text().trim(),
           postedDate: this.parseDate($(element).find('.posted-date').text().trim()),
-          applicationUrl: $(element).find('a.apply-link').attr('href'),
+          applicationUrl: this.resolveUrl(applyHref, source.baseUrl),
           jobType: this.detectJobType($(element).find('.job-type').text().trim()),
           experienceLevel: this.detectExperienceLevel($(element).find('.experience').text().trim()),
           requiredSkills: this.extractSkills($(element).find('.skills').text().trim()),
-          source: 'EthioJobs',
-          sourceUrl: $(element).find('a').attr('href')
+          source: 'scraped',
+          sourceName: 'EthioJobs',
+          sourceUrl: this.resolveUrl(sourceHref, source.baseUrl)
         };
 
         if (this.validateJob(job)) {
@@ -137,13 +142,17 @@ class ScraperService {
         },
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
+        },
+        timeout: 10000
       });
 
       const $ = cheerio.load(response.data);
       const jobs = [];
 
       $('.job-row').each((i, element) => {
+        const applyHref = $(element).find('a.apply-now').attr('href');
+        const sourceHref = $(element).find('a').attr('href');
+
         const job = {
           title: $(element).find('.job-title').text().trim(),
           company: $(element).find('.company-name').text().trim(),
@@ -151,11 +160,12 @@ class ScraperService {
           description: $(element).find('.job-description').text().trim(),
           postedDate: this.parseDate($(element).find('.job-date').text().trim()),
           salary: this.extractSalary($(element).find('.job-salary').text().trim()),
-          applicationUrl: $(element).find('a.apply-now').attr('href'),
+          applicationUrl: this.resolveUrl(applyHref, source.baseUrl),
           jobType: this.detectJobType($(element).find('.job-type').text().trim()),
           requiredSkills: this.extractSkills($(element).find('.job-skills').text().trim()),
-          source: 'Ezega',
-          sourceUrl: $(element).find('a').attr('href')
+          source: 'scraped',
+          sourceName: 'Ezega',
+          sourceUrl: this.resolveUrl(sourceHref, source.baseUrl)
         };
 
         if (this.validateJob(job)) {
@@ -182,30 +192,37 @@ class ScraperService {
   /**
    * Save scraped jobs to database
    */
-  async saveJobs(jobs, source) {
+  async saveJobs(jobs, sourceName) {
     let saved = 0;
     let updated = 0;
 
     for (const jobData of jobs) {
       try {
-        const existingJob = await Job.findOne({ 
-          title: jobData.title,
-          company: jobData.company,
-          source: source
+        const cleanData = { ...jobData };
+        if (!cleanData.salary) {
+          delete cleanData.salary;
+        }
+
+        const existingJob = await Job.findOne({
+          title: cleanData.title,
+          company: cleanData.company,
+          source: 'scraped',
+          sourceName
         });
 
         if (existingJob) {
-          // Update existing job
           await Job.findByIdAndUpdate(existingJob._id, {
-            ...jobData,
-            updatedAt: new Date()
+            ...cleanData,
+            source: 'scraped',
+            sourceName
           });
           updated++;
         } else {
-          // Create new job
           await Job.create({
-            ...jobData,
-            postedDate: jobData.postedDate || new Date(),
+            ...cleanData,
+            source: 'scraped',
+            sourceName,
+            postedDate: cleanData.postedDate || new Date(),
             isActive: true
           });
           saved++;
@@ -215,8 +232,20 @@ class ScraperService {
       }
     }
 
-    logger.info(`Scraped jobs from ${source}: ${saved} new, ${updated} updated`);
+    logger.info(`Scraped jobs from ${sourceName}: ${saved} new, ${updated} updated`);
     return { saved, updated };
+  }
+
+  /**
+   * Utility: Resolve potentially relative URLs against base URL
+   */
+  resolveUrl(href, baseUrl) {
+    if (!href) return undefined;
+    try {
+      return new URL(href, baseUrl).toString();
+    } catch {
+      return href;
+    }
   }
 
   /**
@@ -229,22 +258,22 @@ class ScraperService {
     const daysAgo = dateStr.match(/(\d+)\s+days?\s+ago/i);
     if (daysAgo) {
       const date = new Date();
-      date.setDate(date.getDate() - parseInt(daysAgo[1]));
+      date.setDate(date.getDate() - parseInt(daysAgo[1], 10));
       return date;
     }
 
     // Handle specific dates
     const parsed = new Date(dateStr);
-    return isNaN(parsed) ? new Date() : parsed;
+    return isNaN(parsed.getTime()) ? new Date() : parsed;
   }
 
   /**
    * Utility: Detect job type from text
    */
   detectJobType(text) {
-    const lower = text.toLowerCase();
-    if (lower.includes('full') || lower.includes('full-time')) return 'Full-time';
-    if (lower.includes('part') || lower.includes('part-time')) return 'Part-time';
+    const lower = (text || '').toLowerCase();
+    if (lower.includes('full')) return 'Full-time';
+    if (lower.includes('part')) return 'Part-time';
     if (lower.includes('contract')) return 'Contract';
     if (lower.includes('intern')) return 'Internship';
     if (lower.includes('remote')) return 'Remote';
@@ -255,7 +284,7 @@ class ScraperService {
    * Utility: Detect experience level
    */
   detectExperienceLevel(text) {
-    const lower = text.toLowerCase();
+    const lower = (text || '').toLowerCase();
     if (lower.includes('entry') || lower.includes('junior') || lower.includes('0-2')) return 'Entry Level';
     if (lower.includes('mid') || lower.includes('intermediate') || lower.includes('3-5')) return 'Mid Level';
     if (lower.includes('senior') || lower.includes('6-8')) return 'Senior';
@@ -265,9 +294,11 @@ class ScraperService {
   }
 
   /**
-   * Utility: Extract skills from text
+   * Utility: Extract skills from text as Job.requiredSkills subdocuments
    */
   extractSkills(text) {
+    if (!text) return [];
+
     const commonSkills = [
       'JavaScript', 'Python', 'Java', 'C++', 'React', 'Node.js',
       'Accounting', 'Excel', 'QuickBooks', 'Management',
@@ -276,11 +307,13 @@ class ScraperService {
     ];
 
     const found = [];
-    commonSkills.forEach(skill => {
-      if (text.toLowerCase().includes(skill.toLowerCase())) {
-        found.push(skill);
+    for (const skill of commonSkills) {
+      const escaped = skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const boundaryRegex = new RegExp(`(^|[^a-zA-Z0-9])${escaped}(?=$|[^a-zA-Z0-9])`, 'i');
+      if (boundaryRegex.test(text)) {
+        found.push({ name: skill, importance: 'required' });
       }
-    });
+    }
 
     return found;
   }
@@ -289,19 +322,21 @@ class ScraperService {
    * Utility: Extract salary information
    */
   extractSalary(text) {
-    const salaryRegex = /(\d+[,.]?\d*)\s*[-–]\s*(\d+[,.]?\d*)\s*(ETB|birr|Br)?/i;
+    if (!text) return undefined;
+
+    const salaryRegex = /(\d[\d,]*(?:\.\d+)?)\s*[-–]\s*(\d[\d,]*(?:\.\d+)?)\s*(ETB|birr|Br)?/i;
     const match = text.match(salaryRegex);
-    
+
     if (match) {
       return {
-        min: parseFloat(match[1].replace(',', '')),
-        max: parseFloat(match[2].replace(',', '')),
+        min: parseFloat(match[1].replace(/,/g, '')),
+        max: parseFloat(match[2].replace(/,/g, '')),
         currency: 'ETB',
         period: 'monthly'
       };
     }
-    
-    return null;
+
+    return undefined;
   }
 
   /**

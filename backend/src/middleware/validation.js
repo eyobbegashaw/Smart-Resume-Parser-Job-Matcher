@@ -1,3 +1,4 @@
+const path = require('path');
 const { body, param, query, validationResult } = require('express-validator');
 
 // Validation rules for different endpoints
@@ -8,7 +9,7 @@ const validationRules = {
       .trim()
       .notEmpty().withMessage('Name is required')
       .isLength({ min: 2, max: 50 }).withMessage('Name must be between 2 and 50 characters')
-      .matches(/^[a-zA-Z\s]+$/).withMessage('Name can only contain letters and spaces'),
+      .matches(/^[\p{L}\s.'-]+$/u).withMessage('Name contains invalid characters'),
     
     body('email')
       .trim()
