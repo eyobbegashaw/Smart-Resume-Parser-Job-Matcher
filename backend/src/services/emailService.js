@@ -28,18 +28,29 @@ class EmailService {
   getTransporter() {
     if (!this.transporter) {
       const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim().toLowerCase();
+      const configuredPort = Number(process.env.SMTP_PORT) || 587;
       const isGmail = host === 'smtp.gmail.com' || (process.env.SMTP_USER || '').endsWith('@gmail.com');
 
       if (isGmail && process.env.SMTP_USER && process.env.SMTP_PASS) {
+        const secure = configuredPort === 465;
         this.transporter = nodemailer.createTransport({
-          service: 'gmail',
+          host: 'smtp.gmail.com',
+          port: configuredPort,
+          secure,
+          family: 4,
+          connectionTimeout: 10000,
+          greetingTimeout: 10000,
+          socketTimeout: 15000,
           auth: {
             user: process.env.SMTP_USER,
             pass: process.env.SMTP_PASS
+          },
+          tls: {
+            rejectUnauthorized: true
           }
         });
       } else {
-        const port = Number(process.env.SMTP_PORT) || 587;
+        const port = configuredPort;
         const secure = process.env.SMTP_SECURE !== undefined
           ? process.env.SMTP_SECURE === 'true'
           : port === 465;
@@ -48,6 +59,7 @@ class EmailService {
           host: process.env.SMTP_HOST || 'smtp.gmail.com',
           port,
           secure,
+          family: 4,
           connectionTimeout: 10000,
           greetingTimeout: 10000,
           socketTimeout: 15000,

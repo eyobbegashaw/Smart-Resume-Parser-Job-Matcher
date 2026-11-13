@@ -1074,3 +1074,48 @@ exports.resendVerification = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * @desc    Debug and verify SMTP connectivity from current environment
+ * @route   GET /api/auth/debug-smtp
+ * @access  Public
+ */
+exports.debugSmtp = async (req, res) => {
+  const targetEmail = req.query.email || process.env.SMTP_USER;
+  try {
+    const isVerified = await emailService.verifyConnection();
+    let sendResult = null;
+    let sendError = null;
+
+    if (targetEmail) {
+      try {
+        sendResult = await emailService.sendOtpEmail(
+          { name: 'Developer Test', email: targetEmail },
+          '998877',
+          { language: req.query.lang === 'am' ? 'am' : 'en', expiresMinutes: 10 }
+        );
+      } catch (err) {
+        sendError = { message: err.message, code: err.code };
+      }
+    }
+
+    res.status(200).json({
+      success: isVerified && !sendError,
+      environment: process.env.NODE_ENV,
+      smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
+      smtpPort: process.env.SMTP_PORT || '587',
+      smtpUser: process.env.SMTP_USER,
+      hasSmtpPass: Boolean(process.env.SMTP_PASS),
+      connectionVerified: isVerified,
+      testRecipient: targetEmail,
+      sendResult,
+      sendError
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      code: error.code
+    });
+  }
+};

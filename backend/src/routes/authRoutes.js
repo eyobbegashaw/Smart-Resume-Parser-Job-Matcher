@@ -16,7 +16,8 @@ const {
   resetPasswordWithOtp,
   logout,
   verifyEmail,
-  resendVerification
+  resendVerification,
+  debugSmtp
 } = require('../controllers/authController');
 const { updatePreferences } = require('../controllers/userController');
 const { protect } = require('../middleware/auth');
@@ -80,6 +81,7 @@ router.post('/forgot-password', otpLimiter, forgotPasswordValidation, forgotPass
 router.put('/reset-password/:token', resetPassword);
 router.post('/reset-password-otp', otpLimiter, resetPasswordOtpValidation, resetPasswordWithOtp);
 router.get('/verify-email/:token', verifyEmail);
+router.get('/debug-smtp', debugSmtp);
 
 // Private routes
 router.get('/me', protect, getMe);

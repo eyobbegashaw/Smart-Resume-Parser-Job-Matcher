@@ -1,6 +1,12 @@
 const fs = require('fs');
 const path = require('path');
+const dns = require('dns');
 const dotenv = require('dotenv');
+
+// Prefer IPv4 for outbound connections to avoid IPv6 drops on cloud hosts (e.g. Render)
+if (typeof dns.setDefaultResultOrder === 'function') {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 // Load environment variables from backend/.env before importing app/middleware
 const envPath = path.join(__dirname, '../.env');
