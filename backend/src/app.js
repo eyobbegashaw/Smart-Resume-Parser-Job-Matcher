@@ -77,8 +77,24 @@ class App {
     }));
 
     // CORS
+    const configuredOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+      .split(',')
+      .map((u) => u.trim().replace(/\/+$/, ''));
+
     this.app.use(cors({
-      origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        const cleanOrigin = origin.replace(/\/+$/, '');
+        if (
+          configuredOrigins.includes(cleanOrigin) ||
+          configuredOrigins.includes('*') ||
+          cleanOrigin.endsWith('.onrender.com') ||
+          cleanOrigin.includes('localhost')
+        ) {
+          return callback(null, true);
+        }
+        return callback(null, true);
+      },
       credentials: true,
       optionsSuccessStatus: 200
     }));
