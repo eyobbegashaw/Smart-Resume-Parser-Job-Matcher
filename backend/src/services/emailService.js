@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const https = require('https');
 const logger = require('../utils/logger');
 
 class EmailService {
@@ -38,9 +39,9 @@ class EmailService {
           port: configuredPort,
           secure,
           family: 4,
-          connectionTimeout: 10000,
-          greetingTimeout: 10000,
-          socketTimeout: 15000,
+          connectionTimeout: 4000,
+          greetingTimeout: 4000,
+          socketTimeout: 6000,
           auth: {
             user: process.env.SMTP_USER,
             pass: process.env.SMTP_PASS
@@ -60,9 +61,9 @@ class EmailService {
           port,
           secure,
           family: 4,
-          connectionTimeout: 10000,
-          greetingTimeout: 10000,
-          socketTimeout: 15000,
+          connectionTimeout: 4000,
+          greetingTimeout: 4000,
+          socketTimeout: 6000,
           auth: process.env.SMTP_USER && process.env.SMTP_PASS
             ? {
                 user: process.env.SMTP_USER,
@@ -699,11 +700,141 @@ class EmailService {
   }
 
   /**
+   * Send email via Resend HTTPS API (bypasses cloud host outbound SMTP port blocks)
+   */
+  async sendViaResend(to, subject, html, text) {
+    const apiKey = (process.env.RESEND_API_KEY || '').trim();
+    if (!apiKey) {
+      throw new Error('RESEND_API_KEY is not configured');
+    }
+
+    const fromAddress = (process.env.RESEND_FROM || 'TalentPulse ET <onboarding@resend.dev>').trim();
+    const payload = JSON.stringify({
+      from: fromAddress,
+      to: [to],
+      subject,
+      html,
+      text: text || undefined
+    });
+
+    return new Promise((resolve, reject) => {
+      const req = https.request('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(payload)
+        },
+        timeout: 8000
+      }, (res) => {
+        let body = '';
+        res.on('data', chunk => { body += chunk; });
+        res.on('end', () => {
+          try {
+            const data = JSON.parse(body);
+            if (res.statusCode >= 200 && res.statusCode < 300) {
+              logger.info(`Resend email sent successfully: ${data.id}`);
+              resolve({ success: true, messageId: data.id, deliveryMode: 'resend-http' });
+            } else {
+              reject(new Error(data.message || `Resend error (${res.statusCode}): ${body}`));
+            }
+          } catch (e) {
+            reject(new Error(`Resend response parse error: ${body}`));
+          }
+        });
+      });
+
+      req.on('error', reject);
+      req.on('timeout', () => {
+        req.destroy();
+        reject(new Error('Resend HTTPS request timed out'));
+      });
+      req.write(payload);
+      req.end();
+    });
+  }
+
+  /**
+   * Send email via Brevo HTTPS API (bypasses cloud host outbound SMTP port blocks)
+   */
+  async sendViaBrevo(to, subject, html, text) {
+    const apiKey = (process.env.BREVO_API_KEY || '').trim();
+    if (!apiKey) {
+      throw new Error('BREVO_API_KEY is not configured');
+    }
+
+    const senderEmail = (process.env.BREVO_SENDER_EMAIL || process.env.SMTP_USER || 'eyobbegashaw075@gmail.com').trim();
+    const senderName = process.env.BREVO_SENDER_NAME || 'TalentPulse ET';
+
+    const payload = JSON.stringify({
+      sender: { name: senderName, email: senderEmail },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+      textContent: text || undefined
+    });
+
+    return new Promise((resolve, reject) => {
+      const req = https.request('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'api-key': apiKey,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(payload)
+        },
+        timeout: 8000
+      }, (res) => {
+        let body = '';
+        res.on('data', chunk => { body += chunk; });
+        res.on('end', () => {
+          try {
+            const data = JSON.parse(body);
+            if (res.statusCode >= 200 && res.statusCode < 300) {
+              logger.info(`Brevo email sent successfully: ${data.messageId}`);
+              resolve({ success: true, messageId: data.messageId, deliveryMode: 'brevo-http' });
+            } else {
+              reject(new Error(data.message || `Brevo error (${res.statusCode}): ${body}`));
+            }
+          } catch (e) {
+            reject(new Error(`Brevo response parse error: ${body}`));
+          }
+        });
+      });
+
+      req.on('error', reject);
+      req.on('timeout', () => {
+        req.destroy();
+        reject(new Error('Brevo HTTPS request timed out'));
+      });
+      req.write(payload);
+      req.end();
+    });
+  }
+
+  /**
    * Send email
    */
   async sendEmail(to, subject, html, text, options = {}) {
     if (!to) {
       throw new Error('Recipient email address is required');
+    }
+
+    // 1. Try Resend HTTP API if configured (Port 443 HTTPS, works on Render free tier)
+    if (process.env.RESEND_API_KEY) {
+      try {
+        return await this.sendViaResend(to, subject, html, text);
+      } catch (resendErr) {
+        logger.warn(`Resend HTTP delivery failed: ${resendErr.message}; falling back to next provider`);
+      }
+    }
+
+    // 2. Try Brevo HTTP API if configured (Port 443 HTTPS, works on Render free tier)
+    if (process.env.BREVO_API_KEY) {
+      try {
+        return await this.sendViaBrevo(to, subject, html, text);
+      } catch (brevoErr) {
+        logger.warn(`Brevo HTTP delivery failed: ${brevoErr.message}; falling back to next provider`);
+      }
     }
 
     const smtpUser = (process.env.SMTP_USER || '').trim();

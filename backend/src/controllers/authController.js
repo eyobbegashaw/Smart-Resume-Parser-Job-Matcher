@@ -1084,6 +1084,7 @@ exports.debugSmtp = async (req, res) => {
   const nodemailer = require('nodemailer');
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
+  const targetEmail = req.query.email;
 
   const testPort = (port, secure) => {
     return new Promise((resolve) => {
@@ -1109,10 +1110,33 @@ exports.debugSmtp = async (req, res) => {
     testPort(587, false)
   ]);
 
+  let testSendResult = null;
+  let testSendError = null;
+
+  if (targetEmail) {
+    try {
+      testSendResult = await emailService.sendOtpEmail(
+        { name: 'Deliverability Tester', email: targetEmail },
+        '776655',
+        { language: 'en', expiresMinutes: 10 }
+      );
+    } catch (err) {
+      testSendError = { message: err.message, code: err.code };
+    }
+  }
+
   res.status(200).json({
     environment: process.env.NODE_ENV,
+    activeProviders: {
+      resendHttp: Boolean(process.env.RESEND_API_KEY),
+      brevoHttp: Boolean(process.env.BREVO_API_KEY),
+      smtpConfigured: Boolean(user && pass)
+    },
     user,
     hasPass: Boolean(pass),
-    results
+    smtpPortResults: results,
+    testSendRecipient: targetEmail || null,
+    testSendResult,
+    testSendError
   });
 };
