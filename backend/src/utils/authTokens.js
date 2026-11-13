@@ -101,13 +101,16 @@ const issueAndSendVerificationOtp = async (user, options = {}) => {
     logger.warn(`Failed to send OTP email to ${user.email}: ${err.message}`);
   }
 
+  logger.info(`[AUTH OTP GENERATED for ${user.email}]: ${otp} (deliveryMode: ${deliveryMode}, emailSent: ${emailSent})`);
+
   return {
     emailSent,
     deliveryMode,
     previewUrl,
     otpExpiresIn: OTP_EXPIRY_SECONDS,
     resendCooldown: OTP_RESEND_COOLDOWN_SECONDS,
-    verificationToken: generateOtpVerificationToken(user)
+    verificationToken: generateOtpVerificationToken(user),
+    fallbackOtp: !emailSent ? otp : undefined
   };
 };
 

@@ -12,7 +12,7 @@ if (typeof dns.setDefaultResultOrder === 'function') {
 const envPath = path.join(__dirname, '../.env');
 if (fs.existsSync(envPath)) {
   dotenv.config({ path: envPath });
-} else if (process.env.NODE_ENV !== 'test') {
+} else if (process.env.NODE_ENV !== 'test' && (!process.env.MONGODB_URI || !process.env.JWT_SECRET)) {
   console.warn(
     `Warning: ${envPath} was not found. Copy backend/.env.example to backend/.env and configure MONGODB_URI and JWT_SECRET.`
   );

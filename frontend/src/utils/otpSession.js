@@ -13,6 +13,7 @@ export function buildPendingOtpSession(payload = {}) {
     deliveryMode: payload.deliveryMode || '',
     previewUrl: payload.previewUrl || '',
     verificationToken: payload.verificationToken || '',
+    fallbackOtp: payload.fallbackOtp || '',
     otpExpiresAt: payload.otpExpiresAt || now + (expiresSec > 0 ? expiresSec : 600) * 1000,
     resendAvailableAt: payload.resendAvailableAt || now + (resendSec > 0 ? resendSec : 60) * 1000
   };

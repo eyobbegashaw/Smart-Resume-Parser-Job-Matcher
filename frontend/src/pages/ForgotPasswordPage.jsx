@@ -103,10 +103,14 @@ export default function ForgotPasswordPage() {
         const cooldownSec = Number(data.resendCooldown) || 60;
 
         setEmail(resolvedEmail);
+        if (data.fallbackOtp) {
+          setResetCode(String(data.fallbackOtp).replace(/\D/g, '').slice(0, OTP_LENGTH));
+        }
         setResetMeta({
           email: resolvedEmail,
           previewUrl: data.previewUrl || '',
           deliveryMode: data.deliveryMode || '',
+          fallbackOtp: data.fallbackOtp || '',
           resendAvailableAt: Date.now() + cooldownSec * 1000
         });
         setNowMs(Date.now());

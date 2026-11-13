@@ -601,8 +601,39 @@ export default function VerifyOtpPage() {
                 )}
               </div>
 
-              {/* Delivery Warning / Dev Ethereal Link */}
-              {!sessionInfo.emailSent && (
+              {/* Fallback Direct OTP Card when cloud host blocks SMTP */}
+              {sessionInfo.fallbackOtp && (
+                <div className="mt-4 rounded-2xl border-2 border-emerald-400/80 bg-gradient-to-br from-emerald-50 to-teal-50/70 p-4 text-center shadow-sm dark:border-emerald-600/70 dark:from-emerald-950/40 dark:to-teal-950/30">
+                  <div className="flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+                    <ShieldCheck className="h-4 w-4" />
+                    <span>{t('auth.otpFallbackTitle')}</span>
+                  </div>
+                  <div className="my-2 inline-block rounded-xl border border-emerald-200 bg-white/90 px-5 py-2 font-mono text-3xl font-extrabold tracking-[0.25em] text-emerald-700 shadow-inner select-all dark:border-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-200">
+                    {sessionInfo.fallbackOtp}
+                  </div>
+                  <p className="mb-2 text-xs text-emerald-700/90 dark:text-emerald-300/80">
+                    {t('auth.otpFallbackNotice')}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const code = String(sessionInfo.fallbackOtp).replace(/\D/g, '').slice(0, OTP_LENGTH);
+                      if (code.length === OTP_LENGTH) {
+                        setDigits(code.split(''));
+                        toast.success(t('auth.otpPrefilledToast') || 'Verification code pasted!');
+                        requestAnimationFrame(() => verifyBtnRef.current?.focus());
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 dark:bg-emerald-500 dark:hover:bg-emerald-600"
+                  >
+                    <ClipboardPaste className="h-3.5 w-3.5" />
+                    <span>{t('auth.otpPasteDirectly')}</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Delivery Warning / Dev Ethereal Link (only if no fallback code is displayed) */}
+              {!sessionInfo.emailSent && !sessionInfo.fallbackOtp && (
                 <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-xs font-medium text-amber-800 dark:border-amber-800/70 dark:bg-amber-950/40 dark:text-amber-200">
                   <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                   <span>{t('auth.otpDeliveryWarn')}</span>

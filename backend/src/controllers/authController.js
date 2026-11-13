@@ -104,7 +104,8 @@ exports.register = async (req, res, next) => {
         previewUrl: otpSession.previewUrl,
         otpExpiresIn: otpSession.otpExpiresIn,
         resendCooldown: otpSession.resendCooldown,
-        verificationToken: otpSession.verificationToken
+        verificationToken: otpSession.verificationToken,
+        fallbackOtp: otpSession.fallbackOtp
       }
     });
   } catch (error) {
@@ -550,7 +551,8 @@ exports.resendOtp = async (req, res, next) => {
         previewUrl: otpSession.previewUrl,
         otpExpiresIn: otpSession.otpExpiresIn,
         resendCooldown: otpSession.resendCooldown,
-        verificationToken: otpSession.verificationToken
+        verificationToken: otpSession.verificationToken,
+        fallbackOtp: otpSession.fallbackOtp
       }
     });
   } catch (error) {
