@@ -187,7 +187,7 @@ class App {
     try {
       await this.initialize();
 
-      const server = this.app.listen(this.port, () => {
+      const server = this.app.listen(this.port, '0.0.0.0', () => {
         logger.info(`
           ################################################
           🚀 Server listening on port: ${this.port}

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { AlertCircle, CheckCircle2, Eye, EyeOff, Lock } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Lock } from 'lucide-react';
 import AuthShell from '../components/AuthShell';
+import FloatingInput from '../components/FloatingInput';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useToast } from '../contexts/ToastContext';
 import { authApi, extractErrorMessage } from '../services/api';
@@ -14,8 +15,6 @@ export default function ResetPasswordPage() {
 
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
@@ -99,60 +98,32 @@ export default function ResetPasswordPage() {
           </Link>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-              {t('auth.newPasswordLabel')}
-            </label>
-            <div className="relative">
-              <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                type={showPassword ? 'text' : 'password'}
-                required
-                minLength={6}
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={t('auth.passwordPlaceholder')}
-                className="input-field pl-11 pr-11"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-slate-400 transition hover:text-slate-600 dark:hover:text-slate-200"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-              {t('auth.confirmPasswordLabel')}
-            </label>
-            <div className="relative">
-              <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                type={showConfirm ? 'text' : 'password'}
-                required
-                minLength={6}
-                autoComplete="new-password"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                placeholder="••••••••"
-                className="input-field pl-11 pr-11"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirm((prev) => !prev)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-slate-400 transition hover:text-slate-600 dark:hover:text-slate-200"
-                aria-label={showConfirm ? 'Hide confirm password' : 'Show confirm password'}
-              >
-                {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-          </div>
-          <button type="submit" disabled={submitting} className="btn-primary w-full">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-1">
+          <FloatingInput
+            id="reset-password"
+            type="password"
+            label={t('auth.newPasswordLabel')}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            icon={Lock}
+            required
+            minLength={6}
+            autoComplete="new-password"
+            showPasswordToggle
+          />
+          <FloatingInput
+            id="reset-confirm-password"
+            type="password"
+            label={t('auth.confirmPasswordLabel')}
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            icon={Lock}
+            required
+            minLength={6}
+            autoComplete="new-password"
+            showPasswordToggle
+          />
+          <button type="submit" disabled={submitting} className="btn-primary w-full py-2.5">
             {submitting ? t('common.loading') : t('auth.resetBtn')}
           </button>
         </form>

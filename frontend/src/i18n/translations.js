@@ -98,20 +98,15 @@ export const translations = {
       heroSubtitle:
         'Enterprise-grade AI resume parsing, bilingual English & Amharic skill diagnostics, real-time ATS scoring, and curated career matching across Addis Ababa and Ethiopia.',
       ctaUpload: 'Analyze My Resume',
-      trustMetrics: [
-        { value: 'Bilingual AI', label: 'English & አማርኛ Insights' },
-        { value: '0–100 ATS', label: 'Actionable Score Audit' },
-        { value: '22+ Cities', label: 'Ethiopian Job Coverage' }
-      ],
       previewCard: {
         header: 'AI Evaluation Snapshot',
-        candidate: 'Dawit Bekele — Software Engineer',
-        location: 'Addis Ababa, Ethiopia',
+        candidate: 'Profile & Diagnostics',
+        location: 'Live Role Diagnostics',
         scoreLabel: 'ATS Readiness Score',
         scoreValue: 88,
-        matchedRole: 'Senior Full-Stack Engineer • 92% Match',
+        matchedRole: 'Software Engineer • 92% Match',
         topSkills: ['TypeScript', 'Node.js', 'MongoDB', 'React', 'Amharic'],
-        insight: 'Strong backend architecture & quantified impact metrics. Add Kubernetes for +8% match lift.'
+        insight: 'Verified core stack and structured experience. Continuous diagnostics maximize job match rates.'
       },
       pipelineEyebrow: 'HOW IT WORKS',
       pipelineTitle: 'Four-stage intelligent career pipeline',
@@ -133,58 +128,58 @@ export const translations = {
         },
         {
           step: '03',
-          title: 'Smart Ethiopian Market Scoring',
+          title: 'ATS Readiness & Score Audit',
           description:
-            'Compares candidate skills against active roles in Addis Ababa, Adama, Hawassa, Bahir Dar & remote hubs.'
+            'Scores your resume from 0 to 100, highlighting verified strengths, formatting weaknesses, and specific fixes.'
         },
         {
           step: '04',
-          title: 'Bilingual Skill-Gap Roadmap',
+          title: 'Career Diagnostics & "Guess Works"',
           description:
-            'Generates prioritized learning recommendations and gap analysis in English or Amharic on demand.'
+            'Generates best-fitting target role predictions, seniority horizon hypotheses, and high-impact skill-gap roadmaps in English or Amharic.'
         }
       ],
-      featuresEyebrow: 'ENTERPRISE CAPABILITIES',
+      featuresEyebrow: 'CORE CAPABILITIES',
       featuresTitle: 'Engineered for clarity, speed, and hiring precision',
       features: [
         {
-          title: 'Structured Resume Studio',
-          desc: 'Turns dense multi-page PDFs into searchable timelines, categorized hard/soft skills, and prioritized ATS fixes.'
+          title: 'Structured PDF Resume Extraction',
+          desc: 'Converts dense multi-page PDFs into verified career timelines, academic credentials, categorized technical/soft skills, and executive summaries.'
+        },
+        {
+          title: '0–100 ATS Scoring & Feedback',
+          desc: 'Audits your resume against standard ATS parsers, providing an overall readiness score, detected strengths, areas to improve, and concrete phrasing tips.'
+        },
+        {
+          title: 'Target Role Diagnostics ("Guess Works")',
+          desc: 'Infers high-probability matching job titles, fit percentages, and seniority bracket hypotheses based strictly on your verified skillset.'
+        },
+        {
+          title: 'High-Impact Skill-Gap Roadmap',
+          desc: 'Identifies missing in-demand technologies and prioritized skills needed to advance to senior roles and maximize earning potential.'
         },
         {
           title: 'True Bilingual Experience (EN / አማ)',
-          desc: 'Switch the entire interface and AI evaluation output between English and Amharic effortlessly.'
+          desc: 'Switch the entire interface, extracted data views, and AI diagnostic feedback between English and Amharic with native typography.'
         },
         {
-          title: 'AI Skill Gap Deep-Dive',
-          desc: 'Benchmark any parsed resume against any target role to uncover exact missing required vs. preferred skills.'
-        },
-        {
-          title: 'Application Pipeline Tracker',
-          desc: 'Track saved jobs through Saved, Applied, Interviewing, Accepted, and Rejected stages with dates & notes.'
-        },
-        {
-          title: 'Ethiopian Salary & City Filters',
-          desc: 'Filter by ETB salary bands, Full-time/Remote contracts, experience seniority, and 22+ regional hubs.'
-        },
-        {
-          title: 'Secure Cloud Persistence',
-          desc: 'MongoDB Atlas persistence, JWT access + refresh rotation, Google OAuth, and user-controlled account deletion.'
+          title: '5 Free Daily Scans Allowance',
+          desc: 'Analyze up to 5 resumes every calendar day with automatic midnight UTC quota resets, in-memory processing, and full privacy.'
         }
       ],
-      liveJobsEyebrow: 'LIVE OPPORTUNITIES',
-      liveJobsTitle: 'Fresh active roles on the board',
-      liveJobsEmpty: 'No active jobs posted yet. Sign in as admin to publish roles or check back soon.',
-      finalCtaTitle: 'Ready to benchmark your resume against Ethiopia’s top roles?',
-      finalCtaSubtitle: 'Upload your PDF CV in seconds and uncover your highest-probability career matches.',
+      liveJobsEyebrow: 'INTELLIGENT LAB',
+      liveJobsTitle: 'PDF Resume Intelligence',
+      liveJobsEmpty: 'Upload your PDF resume to inspect real-time ATS scoring and career growth diagnostics.',
+      finalCtaTitle: 'Ready to evaluate your resume with AI precision?',
+      finalCtaSubtitle: 'Upload your PDF CV in seconds to unlock comprehensive ATS scoring, skill diagnostics, and career predictions.',
       finalCtaPrimary: 'Create Free Workspace',
       finalCtaSecondary: 'Sign in to Workspace'
     },
     auth: {
       loginTitle: 'Welcome back',
-      loginSubtitle: 'Sign in to access your Resume Lab, AI matches, and job tracker.',
+      loginSubtitle: 'Sign in to access your Resume Lab, ATS scores, and career diagnostics.',
       registerTitle: 'Create your workspace',
-      registerSubtitle: 'Start parsing resumes and discovering curated Ethiopian opportunities.',
+      registerSubtitle: 'Start parsing PDF resumes and discovering your personalized career trajectory.',
       forgotTitle: 'Reset your password',
       forgotSubtitle: 'Enter your registered email and we will send reset instructions.',
       resetTitle: 'Choose a new password',
@@ -269,27 +264,37 @@ export const translations = {
     },
     dashboard: {
       title: 'Career Intelligence Hub',
-      subtitle: 'Live telemetry across your parsed resumes, skill portfolio, and active applications.',
+      subtitle: 'Live telemetry across your parsed resumes, daily scan allowance, and AI skill diagnostics.',
       uploadNewBtn: 'Upload Resume',
       kpis: {
         totalResumes: 'Parsed Resumes',
         avgScore: 'Average ATS Score',
         highScore: 'Peak ATS Score',
-        savedTracked: 'Tracked Roles'
+        savedTracked: 'Tracked Roles',
+        dailyQuota: 'Daily Scans',
+        quotaRemaining: '{remaining} left today',
+        quotaUsed: '{used} / {limit} scans'
       },
       pipelineTitle: 'Application Funnel',
+      quotaTitle: 'Daily Resume Allowance & AI Intelligence',
+      quotaSubtitle: 'Every account receives 5 free high-precision AI resume evaluations per calendar day.',
+      quotaProgress: '{used} of {limit} daily scans used today',
+      quotaRemainingLabel: '{remaining} remaining today',
+      quotaResets: 'Daily free limit resets at 00:00 UTC (tomorrow)',
+      careerGrowthTitle: 'AI Career Diagnostics & Growth ("Guess Works")',
+      careerGrowthSubtitle: 'Target role hypotheses, seniority projections, and skill recommendations.',
       topSkillsTitle: 'Most Extracted Skills',
       recommendedTitle: 'AI-Recommended Matches',
       recentResumesTitle: 'Recent Resume Evaluations',
-      noResumes: 'Upload your first PDF resume to unlock ATS scoring and tailored job matching.',
+      noResumes: 'Upload your first PDF resume to unlock ATS scoring and tailored skill diagnostics.',
       noSkills: 'Skills appear here automatically after parsing your first resume.',
-      noMatches: 'Complete a resume scan to receive personalized match percentages.',
+      noMatches: 'Complete a resume scan to receive personalized career projections.',
       viewAllResumes: 'Open Resume Lab',
       scoreSuffix: '/ 100'
     },
     resumes: {
       title: 'AI Resume Lab',
-      subtitle: 'Upload PDF CVs for structured AI extraction, ATS scoring, and job matching.',
+      subtitle: 'Upload PDF resumes for structured AI extraction, ATS scoring, and career growth diagnostics.',
       uploadCardTitle: 'Upload & Analyze PDF Resume',
       dropActive: 'Drop your PDF file here to begin',
       dropIdle: 'Drag & drop your PDF resume here, or click to browse',
@@ -298,11 +303,16 @@ export const translations = {
       outputLanguage: 'AI Feedback Language',
       analyzeBtn: 'Run AI Analysis',
       analyzing: 'Analyzing resume...',
+      dailyQuotaBadge: 'Daily Allowance: {used} / {limit} scans used • {remaining} left today',
+      dailyLimitReachedTitle: 'Daily Quota Reached (5/5 Scans)',
+      dailyLimitReachedDesc: 'You have completed all 5 free resume scans for today. Your daily AI limit resets tomorrow at 00:00 UTC. Come back tomorrow to analyze more resumes!',
+      dailyLimitExceededToast: 'Daily limit reached (5 scans per day). Please return tomorrow for more analyses.',
+      dailyLimitBtn: 'Daily Limit Reached (Resets Tomorrow)',
       stages: [
         'Uploading PDF payload securely',
         'Extracting structured text blocks',
         'Running AI skill & ATS audit',
-        'Matching against active Ethiopian roles'
+        'Generating career growth diagnostics'
       ],
       historyTitle: 'Your Resume Library',
       emptyLibrary: 'No resumes uploaded yet. Upload one on the left to inspect insights.',
@@ -312,7 +322,7 @@ export const translations = {
         overview: 'Feedback & Diagnostics',
         skills: 'Skills & Languages',
         experience: 'Experience & Education',
-        matches: 'Matched Jobs'
+        insights: 'Growth & "Guess Works"'
       },
       strengths: 'Key Strengths',
       weaknesses: 'Areas to Improve',
@@ -322,6 +332,18 @@ export const translations = {
       languagesSpoken: 'Languages',
       experienceTitle: 'Work Experience',
       educationTitle: 'Education History',
+      insightsTitle: 'AI Career Diagnostics & Growth ("Guess Works")',
+      insightsSubtitle: 'Intelligent career trajectory, guessed target roles, and personalized skill-gap roadmap based on your parsed profile.',
+      guessedRolesTitle: 'Guessed Target Roles & Market Fit',
+      seniorityTitle: 'Seniority Level Hypothesis',
+      seniorityJunior: 'Junior / Associate Level',
+      seniorityMid: 'Mid-Level Professional',
+      senioritySenior: 'Senior / Lead Professional',
+      seniorityPrincipal: 'Lead / Principal Specialist',
+      nextLevelSkillsTitle: 'Recommended High-Impact Skills to Acquire',
+      nextLevelSkillsSubtitle: 'Key in-demand technologies to learn to qualify for senior roles and increase earning potential:',
+      resumeOptimizationTitle: 'ATS Formatting & Phrasing Optimizations',
+      noInsightsYet: 'Upload or select a resume to inspect AI career growth predictions.',
       matchedJobsTitle: 'Matched Active Opportunities',
       noMatchedJobs: 'No matching active jobs found yet for this resume.',
       runGapBtn: 'AI Skill Gap',
@@ -331,6 +353,11 @@ export const translations = {
       fileTooLarge: 'File exceeds the 5 MB limit.',
       invalidFileType: 'Only PDF (.pdf) files are accepted.',
       noSummary: 'No executive summary extracted.',
+      noHardSkillsListed: 'No technical skills extracted from resume.',
+      noSoftSkillsListed: 'No soft skills extracted from resume.',
+      noLanguagesListed: 'No languages extracted from resume.',
+      noExperienceListed: 'No professional work experience listed in resume.',
+      noEducationListed: 'No academic history listed in resume.',
       deletedToast: 'Resume deleted successfully',
       roleFallback: 'Role',
       unavailableJob: 'Role #{id} (no longer active)'
@@ -489,7 +516,7 @@ export const translations = {
       desc: 'AI-powered resume evaluation and intelligent job matching built for Ethiopian professionals and modern hiring teams.',
       platform: 'Platform',
       resources: 'Workspace',
-      status: 'Database: MongoDB Atlas • In-Process Scheduler',
+      developer: 'Developer',
       rights: '© {year} TalentPulse ET. All rights reserved.'
     }
   },
@@ -562,20 +589,15 @@ export const translations = {
       heroSubtitle:
         'በAI የተደገፈ የሲቪ ትንተና፣ በእንግሊዝኛ እና በአማርኛ የክህሎት ምክር፣ የATS ውጤት ግምገማ እና በአዲስ አበባና መላው ኢትዮጵያ ከሚገኙ ክፍት ሥራዎች ጋር ብልህ ማዛመድ።',
       ctaUpload: 'ሲቪዬን ተንትን',
-      trustMetrics: [
-        { value: 'ሁለት ቋንቋ AI', label: 'እንግሊዝኛ እና አማርኛ ትንተና' },
-        { value: '0–100 ATS', label: 'ጥልቅ የሲቪ ነጥብ ግምገማ' },
-        { value: '22+ ከተሞች', label: 'የኢትዮጵያ የሥራ ሽፋን' }
-      ],
       previewCard: {
         header: 'የAI ግምገማ ናሙና',
-        candidate: 'ዳዊት በቀለ — ሶፍትዌር መሐንዲስ',
-        location: 'አዲስ አበባ፣ ኢትዮጵያ',
+        candidate: 'የእጩ ሲቪ እና የATS ግምገማ',
+        location: 'የቀጥታ የሥራ ትንተና',
         scoreLabel: 'የATS ዝግጁነት ነጥብ',
         scoreValue: 88,
-        matchedRole: 'ሲኒየር ፉል-ስታክ መሐንዲስ • 92% ተዛማጅ',
+        matchedRole: 'ሶፍትዌር መሐንዲስ • 92% ተዛማጅ',
         topSkills: ['TypeScript', 'Node.js', 'MongoDB', 'React', 'አማርኛ'],
-        insight: 'ጠንካራ የባክኤንድ ልምድ እና የተለካ ውጤት አለዎት። Kubernetes በመጨመር ተዛማጅነትን +8% ያሳድጉ።'
+        insight: 'የተረጋገጡ ክህሎቶች እና የተዋቀረ የሥራ ልምድ። የቀጣይ ግምገማዎች የሥራ ማዛመድ ዕድልን ያሳድጋሉ።'
       },
       pipelineEyebrow: 'እንዴት ይሰራል',
       pipelineTitle: 'አራት ደረጃዎች ያሉት ብልህ የሥራ ሂደት',
@@ -595,56 +617,56 @@ export const translations = {
         },
         {
           step: '03',
-          title: 'ከኢትዮጵያ የሥራ ገበያ ጋር ማዛመድ',
-          description: 'በአዲስ አበባ፣ አዳማ፣ ሀዋሳ፣ ባህር ዳር እና የርቀት ሥራዎች መካከል ተዛማጅነቱን ያሰላል።'
+          title: 'የATS ተቀባይነት እና ነጥብ ኦዲት',
+          description: 'ሲቪዎን ከ0 እስከ 100 ነጥብ በመመዘን ጠንካራ ጎኖችን፣ የአቀራረብ ድክመቶችን እና ተጨባጭ የማሻሻያ ነጥቦችን ያሳያል።'
         },
         {
           step: '04',
-          title: 'በአማርኛና እንግሊዝኛ የክህሎት ምክር',
-          description: 'ለተመረጡ ሥራዎች የሚጎድሉ ክህሎቶችን እና የመማሪያ አቅጣጫዎችን በፈለጉት ቋንቋ ያቀርባል።'
+          title: 'የሙያ ዕድገት ትንበያ እና ግምቶች',
+          description: 'ተስማሚ የታለሙ የሥራ መደቦችን፣ የደረጃ ግምቶችን እና የሚመከሩ ክህሎቶችን በአማርኛ ወይም በእንግሊዝኛ ያቀርባል።'
         }
       ],
-      featuresEyebrow: 'የኢንተርፕራይዝ አቅም',
+      featuresEyebrow: 'ዋና አቅሞች',
       featuresTitle: 'ለፍጥነት፣ ለትክክለኛነት እና ለተሻለ ቅጥር የተገነባ',
       features: [
         {
-          title: 'ዘመናዊ የሲቪ መገምገሚያ',
-          desc: 'ረጅም PDF ሲቪዎችን ወደ ተዋቀረ የሥራ ልምድ፣ ክህሎት ዝርዝር እና የATS ማሻሻያ ነጥቦች ይቀይራል።'
+          title: 'የተሟላ የPDF ሲቪ መረጃ ማውጫ',
+          desc: 'ረጅም PDF ሲቪዎችን ወደ ተዋቀረ የሥራ ልምድ፣ የትምህርት ታሪክ፣ የተከፋፈሉ ቴክኒካልና ማህበራዊ ክህሎቶች እና ማጠቃለያ ይቀይራል።'
+        },
+        {
+          title: 'የATS ተቀባይነት ነጥብ እና ግምገማ',
+          desc: 'ሲቪዎን በATS መስፈርቶች መሰረት በመገምገም ከ0–100 ነጥብ፣ ጠንካራ ጎኖችን፣ ድክመቶችን እና ተጨባጭ የማሻሻያ ምክሮችን ይሰጣል።'
+        },
+        {
+          title: 'የታለሙ የስራ መደቦች ትንበያ (ግምቶች)',
+          desc: 'ከተገኙት ክህሎቶችዎ በመነሳት ተስማሚ የሥራ መደቦችን፣ የተዛማጅነት መቶኛ እና የሙያ ደረጃ ግምቶችን ያወጣል።'
+        },
+        {
+          title: 'የክህሎት ክፍተት ማሻሻያ አቅጣጫዎች',
+          desc: 'ወደ ከፍተኛ የሙያ ደረጃ ለማደግ እና የደመወዝ አቅምን ለማሳደግ የሚረዱ ተፈላጊ ዘመናዊ ቴክኖሎጂዎችን ይለያል።'
         },
         {
           title: 'ሙሉ የሁለት ቋንቋ ድጋፍ (EN / አማ)',
-          desc: 'መላውን መድረክ እና የAI ግምገማ ውጤቶችን በአንድ ጠቅታ በአማርኛ ወይም በእንግሊዝኛ ይጠቀሙ።'
+          desc: 'መላውን መድረክ እና የAI የሲቪ ትንተና ውጤቶችን በአንድ ጠቅታ በእንግሊዝኛ ወይም በአማርኛ ያለምንም እንከን ይጠቀሙ።'
         },
         {
-          title: 'የክህሎት ክፍተት ትንተና',
-          desc: 'ሲቪዎን ከሚፈልጉት ሥራ ጋር በማነጻጸር የሚያስፈልጉ እና ተመራጭ የጎደሉ ክህሎቶችን ይለያል።'
-        },
-        {
-          title: 'የማመልከቻ መከታተያ ሰሌዳ',
-          desc: 'የተቀመጡ ሥራዎችን በተቀመጠ፣ ተመልክቷል፣ ቃለ መጠይቅ እና ተቀባይነት ደረጃዎች ይከታተሉ።'
-        },
-        {
-          title: 'የኢትዮጵያ ደመወዝና ከተማ ማጣሪያ',
-          desc: 'በኢትዮጵያ ብር ደመወዝ፣ በሙሉ/ትርፍ ጊዜ፣ የልምድ ደረጃ እና በ22+ ከተሞች ሥራዎችን ያጣሩ።'
-        },
-        {
-          title: 'አስተማማኝ የክላውድ ደህንነት',
-          desc: 'በMongoDB Atlas ውሂብ ማከማቻ፣ JWT ደህንነት፣ Google መግቢያ እና የመለያ ቁጥጥር የተገነባ።'
+          title: 'በቀን 5 ነፃ የAI ፍተሻዎች አበል',
+          desc: 'በቀን እስከ 5 ሲቪዎችን በነፃ ይተንትኑ፤ ኮታው በየቀኑ በ00:00 UTC የሚታደስ ሲሆን ውሂብዎ በከፍተኛ ደህንነት ይጠበቃል።'
         }
       ],
-      liveJobsEyebrow: 'አዲስ ሥራዎች',
-      liveJobsTitle: 'በመድረኩ ላይ ያሉ ንቁ የሥራ ዕድሎች',
-      liveJobsEmpty: 'እስካሁን ንቁ ሥራዎች አልተለጠፉም። በአስተዳዳሪ ይለጥፉ ወይም ቆይተው ይመልከቱ።',
-      finalCtaTitle: 'ሲቪዎን ከኢትዮጵያ ምርጥ የሥራ ዕድሎች ጋር ለማነጻጸር ዝግጁ ነዎት?',
-      finalCtaSubtitle: 'PDF ሲቪዎን በሰከንዶች ውስጥ ይስቀሉ እና ከፍተኛ ተዛማጅ ሥራዎችን ያግኙ።',
+      liveJobsEyebrow: 'ብልህ የሲቪ ማዕከል',
+      liveJobsTitle: 'የPDF ሲቪ ትንተና እና ግምገማ',
+      liveJobsEmpty: 'የATS ነጥብ እና የሙያ ግምቶችን ለማየት PDF ሲቪዎን ይስቀሉ።',
+      finalCtaTitle: 'ሲቪዎን በAI ጥራት ለመገምገም ዝግጁ ነዎት?',
+      finalCtaSubtitle: 'የATS ነጥብ፣ የክህሎት ትንታኔ እና የሙያ ግምቶችን ለማግኘት PDF ሲቪዎን በሰከንዶች ውስጥ ይስቀሉ።',
       finalCtaPrimary: 'ነጻ መለያ ፍጠር',
       finalCtaSecondary: 'ወደ መለያዎ ይግቡ'
     },
     auth: {
       loginTitle: 'እንኳን በደህና ተመለሱ',
-      loginSubtitle: 'የሲቪ ትንተናዎን፣ የAI ማዛመጃዎን እና የተቀመጡ ሥራዎችን ለማግኘት ይግቡ።',
+      loginSubtitle: 'የሲቪ መተንተኛዎን፣ የATS ነጥቦችን እና የሙያ ግምቶችን ለማግኘት ይግቡ።',
       registerTitle: 'አዲስ መለያ ይፍጠሩ',
-      registerSubtitle: 'ሲቪዎን መተንተን እና የኢትዮጵያ የሥራ ዕድሎችን ማግኘት ይጀምሩ።',
+      registerSubtitle: 'PDF ሲቪዎችን መተንተን እና የሙያ አቅጣጫዎን ማወቅ ይጀምሩ።',
       forgotTitle: 'ይለፍ ቃልዎን ይቀይሩ',
       forgotSubtitle: 'የተመዘገበ ኢሜይልዎን ያስገቡና የማደሻ መመሪያ እንልክልዎታለን።',
       resetTitle: 'አዲስ ይለፍ ቃል ያስገቡ',
@@ -729,27 +751,37 @@ export const translations = {
     },
     dashboard: {
       title: 'የሥራ እና ሲቪ ማዕከል',
-      subtitle: 'የተተነተኑ ሲቪዎች፣ የክህሎት ክምችት እና የማመልከቻ ሂደት አጠቃላይ እይታ።',
+      subtitle: 'የተተነተኑ ሲቪዎች፣ የዕለቱ ትንተና ኮታ እና የAI ክህሎት ግምገማ አጠቃላይ እይታ።',
       uploadNewBtn: 'ሲቪ ስቀል',
       kpis: {
         totalResumes: 'የተተነተኑ ሲቪዎች',
         avgScore: 'አማካይ የATS ነጥብ',
         highScore: 'ከፍተኛ የATS ነጥብ',
-        savedTracked: 'የተከታተሉ ሥራዎች'
+        savedTracked: 'የተከታተሉ ሥራዎች',
+        dailyQuota: 'የዕለቱ ትንተና',
+        quotaRemaining: '{remaining} ዛሬ ቀርቷል',
+        quotaUsed: '{used} / {limit} ትንተና'
       },
       pipelineTitle: 'የማመልከቻ ደረጃዎች',
+      quotaTitle: 'የዕለቱ የሲቪ ትንተና ኮታ እና የAI ማዕከል',
+      quotaSubtitle: 'እያንዳንዱ ተጠቃሚ በቀን 5 ነፃ ጥልቅ የAI ሲቪ ትንተናዎችን ያገኛል።',
+      quotaProgress: 'ዛሬ {limit} ውስጥ {used} ጥቅም ላይ ውሏል',
+      quotaRemainingLabel: '{remaining} ዛሬ ቀርቷል',
+      quotaResets: 'የዕለቱ ነፃ ኮታ በ00:00 UTC (ነገ) ይታደሳል',
+      careerGrowthTitle: 'የሙያ ዕድገት እና የክህሎት ትንበያ (ግምቶች)',
+      careerGrowthSubtitle: 'ከተገኙት ክህሎቶችዎ የተወሰዱ የAI የሙያ ትንበያዎች፣ የደረጃ ግምቶች እና ምክሮች።',
       topSkillsTitle: 'በብዛት የተገኙ ክህሎቶች',
       recommendedTitle: 'በAI የተመረጡ ሥራዎች',
       recentResumesTitle: 'የቅርብ ጊዜ የሲቪ ግምገማዎች',
-      noResumes: 'የATS ነጥብ እና ተዛማጅ ሥራዎችን ለማግኘት የመጀመሪያውን PDF ሲቪ ይስቀሉ።',
+      noResumes: 'የATS ነጥብ እና የክህሎት ምክሮችን ለማግኘት የመጀመሪያውን PDF ሲቪ ይስቀሉ።',
       noSkills: 'ሲቪ ከተነተነ በኋላ ዋና ክህሎቶችዎ እዚህ ይታያሉ።',
-      noMatches: 'የተዛማጅነት መቶኛ ለማየት የሲቪ ትንተና ያጠናቅቁ።',
+      noMatches: 'የAI የሙያ ትንበያዎችን ለማየት የሲቪ ትንተና ያጠናቅቁ።',
       viewAllResumes: 'ወደ ሲቪ ክፍል ሂድ',
       scoreSuffix: '/ 100'
     },
     resumes: {
       title: 'የAI ሲቪ መተንተኛ',
-      subtitle: 'በAI የተዋቀረ የመረጃ ማውጫ፣ የATS ነጥብ እና የሥራ ማዛመጃ።',
+      subtitle: 'በAI የተዋቀረ የመረጃ ማውጫ፣ የATS ነጥብ እና የሙያ ዕድገት ግምቶች።',
       uploadCardTitle: 'PDF ሲቪ ስቀል እና ተንትን',
       dropActive: 'ለመጀመር PDF ፋይሉን እዚህ ይልቀቁ',
       dropIdle: 'PDF ሲቪዎን እዚህ ይጎትቱ ወይም ለመምረጥ ይጫኑ',
@@ -758,11 +790,16 @@ export const translations = {
       outputLanguage: 'የAI ግምገማ ቋንቋ',
       analyzeBtn: 'የAI ትንተና ጀምር',
       analyzing: 'ሲቪ በመተንተን ላይ...',
+      dailyQuotaBadge: 'የዕለቱ ኮታ፡ {limit} ውስጥ {used} ጥቅም ላይ ውሏል • {remaining} ቀርቷል',
+      dailyLimitReachedTitle: 'የዕለቱ ኮታ ተጠናቋል (5/5)',
+      dailyLimitReachedDesc: 'የዛሬውን 5 ነፃ የAI ሲቪ ትንተናዎች አጠናቀዋል። የዕለቱ የAI ገደብ ነገ በ00:00 UTC ይታደሳል። ተጨማሪ ሲቪዎችን ለመተንተን እባክዎ ነገ ይመለሱ።',
+      dailyLimitExceededToast: 'የዕለቱ ገደብ ተጠናቋል (በቀን 5 ጊዜ ብቻ)። ተጨማሪ ትንተና ለማድረግ እባክዎ ነገ ይመለሱ።',
+      dailyLimitBtn: 'የዕለቱ ገደብ ተጠናቋል (ነገ ይመለሱ)',
       stages: [
         'PDF በደህንነት በመጫን ላይ',
         'የሲቪ ጽሑፍ በማውጣት ላይ',
         'በAI የATS እና ክህሎት ግምገማ',
-        'ከኢትዮጵያ ክፍት ሥራዎች ጋር በማዛመድ ላይ'
+        'የሙያ ዕድገት ትንበያ በማመንጨት ላይ'
       ],
       historyTitle: 'የእርስዎ ሲቪዎች',
       emptyLibrary: 'እስካሁን የተሰቀለ ሲቪ የለም። በግራ በኩል ይስቀሉ።',
@@ -772,7 +809,7 @@ export const translations = {
         overview: 'ግምገማ እና ምክሮች',
         skills: 'ክህሎቶች እና ቋንቋዎች',
         experience: 'ልምድ እና ትምህርት',
-        matches: 'ተዛማጅ ሥራዎች'
+        insights: 'የሙያ ዕድገት እና ግምቶች'
       },
       strengths: 'ጠንካራ ጎኖች',
       weaknesses: 'መሻሻል ያለባቸው ጉዳዮች',
@@ -782,6 +819,18 @@ export const translations = {
       languagesSpoken: 'ቋንቋዎች',
       experienceTitle: 'የሥራ ልምድ',
       educationTitle: 'የትምህርት ታሪክ',
+      insightsTitle: 'የAI የሙያ አቅጣጫ እና የክህሎት ትንታኔ (ግምቶች)',
+      insightsSubtitle: 'ከሲቪዎ የተገኙ የደረጃ ግምቶች፣ ተስማሚ የሥራ መደቦች እና የክህሎት ማሻሻያ ምክሮች።',
+      guessedRolesTitle: 'ተስማሚ የታለሙ የሥራ መደቦች እና ግምቶች',
+      seniorityTitle: 'የሙያ ደረጃ ግምት',
+      seniorityJunior: 'ጀማሪ / ረዳት ባለሙያ',
+      seniorityMid: 'መካከለኛ ባለሙያ',
+      senioritySenior: 'ከፍተኛ / መሪ ባለሙያ',
+      seniorityPrincipal: 'ዋና / መሪ ስፔሻሊስት',
+      nextLevelSkillsTitle: 'ወደ ቀጣይ ደረጃ ለመድረስ የሚመከሩ ክህሎቶች',
+      nextLevelSkillsSubtitle: 'ለከፍተኛ የሥራ መደቦች ብቁ ለመሆን እና የደመወዝ አቅምን ለማሳደግ የሚረዱ ተፈላጊ ቴክኖሎጂዎች፡',
+      resumeOptimizationTitle: 'የATS ተቀባይነት ማሻሻያ ነጥቦች',
+      noInsightsYet: 'የAI የሙያ ትንበያዎችን ለማየት ሲቪ ይስቀሉ ወይም ይምረጡ።',
       matchedJobsTitle: 'ተዛማጅ ንቁ የሥራ ዕድሎች',
       noMatchedJobs: 'ለዚህ ሲቪ እስካሁን ተዛማጅ ንቁ ሥራ አልተገኘም።',
       runGapBtn: 'የክህሎት ክፍተት',
@@ -791,6 +840,11 @@ export const translations = {
       fileTooLarge: 'የፋይሉ መጠን ከ5 ሜባ በላይ ነው።',
       invalidFileType: 'PDF (.pdf) ፋይሎች ብቻ ይፈቀዳሉ።',
       noSummary: 'ማጠቃለያ ጽሑፍ አልተገኘም።',
+      noHardSkillsListed: 'ምንም የቴክኒክ ክህሎት ከሲቪው አልተገኘም።',
+      noSoftSkillsListed: 'ምንም የማህበራዊ ክህሎት ከሲቪው አልተገኘም።',
+      noLanguagesListed: 'ምንም የቋንቋ መረጃ ከሲቪው አልተገኘም።',
+      noExperienceListed: 'ምንም የሥራ ልምድ በሲቪው ውስጥ አልተዘረዘረም።',
+      noEducationListed: 'ምንም የትምህርት ታሪክ በሲቪው ውስጥ አልተዘረዘረም።',
       deletedToast: 'ሲቪው በተሳካ ሁኔታ ተሰርዟል',
       roleFallback: 'የሥራ ድርሻ',
       unavailableJob: 'የሥራ መደብ #{id} (ከአሁን በኋላ ንቁ አይደለም)'
@@ -948,7 +1002,7 @@ export const translations = {
       desc: 'ለኢትዮጵያውያን ባለሙያዎች እና ዘመናዊ አሰሪዎች የተገነባ በAI የተደገፈ የሲቪ መገምገሚያ እና የሥራ ማዛመጃ መድረክ።',
       platform: 'መድረክ',
       resources: 'የሥራ ቦታ',
-      status: 'ዳታቤዝ: MongoDB Atlas • In-Process Scheduler',
+      developer: 'አልሚ',
       rights: '© {year} TalentPulse ET. መብቱ በህግ የተጠበቀ ነው።'
     }
   }

@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import {
-  Bookmark,
   FileText,
   LayoutDashboard,
   LogOut,
   Menu,
   Moon,
-  PlusCircle,
   Settings,
   Sparkles,
   Sun,
@@ -19,7 +17,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Navbar() {
-  const { user, isAuthenticated, isAdmin, logout, syncPreferences } = useAuth();
+  const { user, isAuthenticated, logout, syncPreferences } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
@@ -49,11 +47,9 @@ export default function Navbar() {
     ...(isAuthenticated
       ? [
           { to: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
-          { to: '/resumes', label: t('nav.resumes'), icon: FileText },
-          { to: '/saved-jobs', label: t('nav.savedJobs'), icon: Bookmark }
+          { to: '/resumes', label: t('nav.resumes'), icon: FileText }
         ]
-      : []),
-    ...(isAdmin ? [{ to: '/admin/jobs', label: t('nav.adminJobs'), icon: PlusCircle }] : [])
+      : [])
   ];
 
   const navLinkClass = ({ isActive }) =>

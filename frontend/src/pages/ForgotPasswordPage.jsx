@@ -6,8 +6,6 @@ import {
   ClipboardPaste,
   Clock,
   ExternalLink,
-  Eye,
-  EyeOff,
   KeyRound,
   Lock,
   Mail,
@@ -15,6 +13,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import AuthShell from '../components/AuthShell';
+import FloatingInput from '../components/FloatingInput';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useToast } from '../contexts/ToastContext';
 import { authApi, extractErrorMessage } from '../services/api';
@@ -35,8 +34,6 @@ export default function ForgotPasswordPage() {
   const [otp, setOtp] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
 
   const [prefilledFromEmail, setPrefilledFromEmail] = useState(false);
   const [error, setError] = useState('');
@@ -299,35 +296,32 @@ export default function ForgotPasswordPage() {
             </div>
           </div>
 
-          <form onSubmit={handleResetSubmit} className="space-y-4">
+          <form onSubmit={handleResetSubmit} className="space-y-4 pt-1">
             <div>
-              <div className="mb-1.5 flex items-center justify-between gap-2">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                  {t('auth.forgotCodeLabel')}
-                </label>
-                <button
-                  type="button"
-                  onClick={handlePasteCode}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-brand-600 hover:underline dark:text-brand-400"
-                >
-                  <ClipboardPaste className="h-3.5 w-3.5" />
-                  {t('auth.otpPasteBtn')}
-                </button>
-              </div>
-              <div className="relative">
-                <KeyRound className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  maxLength={OTP_LENGTH}
-                  required
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, OTP_LENGTH))}
-                  placeholder={t('auth.forgotCodePlaceholder')}
-                  className="input-field pl-11 font-mono font-semibold tracking-[0.25em]"
-                />
-              </div>
+              <FloatingInput
+                id="forgot-code"
+                type="text"
+                inputMode="numeric"
+                label={t('auth.forgotCodeLabel')}
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, OTP_LENGTH))}
+                icon={KeyRound}
+                required
+                autoComplete="one-time-code"
+                maxLength={OTP_LENGTH}
+                inputClassName="font-mono font-semibold tracking-[0.25em]"
+                rightElement={
+                  <button
+                    type="button"
+                    onClick={handlePasteCode}
+                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-brand-600 hover:bg-brand-50 hover:underline dark:text-brand-400 dark:hover:bg-brand-950/40"
+                    title={t('auth.otpPasteBtn')}
+                  >
+                    <ClipboardPaste className="h-3.5 w-3.5" />
+                    <span>{t('auth.otpPasteBtn')}</span>
+                  </button>
+                }
+              />
               {prefilledFromEmail && (
                 <p className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
                   <CheckCircle2 className="h-3.5 w-3.5" />
@@ -336,85 +330,50 @@ export default function ForgotPasswordPage() {
               )}
             </div>
 
-            <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                {t('auth.newPasswordLabel')}
-              </label>
-              <div className="relative">
-                <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  minLength={6}
-                  autoComplete="new-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={t('auth.passwordPlaceholder')}
-                  className="input-field pl-11 pr-11"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-slate-400 transition hover:text-slate-600 dark:hover:text-slate-200"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
+            <FloatingInput
+              id="forgot-new-password"
+              type="password"
+              label={t('auth.newPasswordLabel')}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              icon={Lock}
+              required
+              minLength={6}
+              autoComplete="new-password"
+              showPasswordToggle
+            />
 
-            <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                {t('auth.confirmPasswordLabel')}
-              </label>
-              <div className="relative">
-                <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  type={showConfirm ? 'text' : 'password'}
-                  required
-                  minLength={6}
-                  autoComplete="new-password"
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  placeholder="••••••••"
-                  className="input-field pl-11 pr-11"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirm((prev) => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-slate-400 transition hover:text-slate-600 dark:hover:text-slate-200"
-                  aria-label={showConfirm ? 'Hide confirm password' : 'Show confirm password'}
-                >
-                  {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
+            <FloatingInput
+              id="forgot-confirm-password"
+              type="password"
+              label={t('auth.confirmPasswordLabel')}
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              icon={Lock}
+              required
+              minLength={6}
+              autoComplete="new-password"
+              showPasswordToggle
+            />
 
-            <button type="submit" disabled={submitting} className="btn-primary w-full">
+            <button type="submit" disabled={submitting} className="btn-primary w-full py-2.5">
               {submitting ? t('common.loading') : t('auth.resetBtn')}
             </button>
           </form>
         </div>
       ) : (
-        <form onSubmit={handleRequestSubmit} className="space-y-4">
-          <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-              {t('auth.emailLabel')}
-            </label>
-            <div className="relative">
-              <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                type="email"
-                required
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={t('auth.emailPlaceholder')}
-                className="input-field pl-11"
-              />
-            </div>
-          </div>
-          <button type="submit" disabled={submitting} className="btn-primary w-full">
+        <form onSubmit={handleRequestSubmit} className="space-y-4 pt-1">
+          <FloatingInput
+            id="forgot-email"
+            type="email"
+            label={t('auth.emailLabel')}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            icon={Mail}
+            required
+            autoComplete="email"
+          />
+          <button type="submit" disabled={submitting} className="btn-primary w-full py-2.5">
             {submitting ? t('common.loading') : t('auth.sendResetBtn')}
           </button>
         </form>

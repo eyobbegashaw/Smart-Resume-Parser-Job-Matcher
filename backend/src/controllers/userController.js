@@ -369,6 +369,23 @@ exports.getUserStats = async (req, res, next) => {
       { $limit: 10 }
     ]);
 
+    // Calculate today's upload quota (5 per day limit)
+    const startOfToday = new Date();
+    startOfToday.setUTCHours(0, 0, 0, 0);
+
+    const todayUploads = await Resume.countDocuments({
+      userId: userObjectId,
+      createdAt: { $gte: startOfToday }
+    });
+
+    const DAILY_LIMIT = 5;
+    const dailyQuota = {
+      limit: DAILY_LIMIT,
+      used: todayUploads,
+      remaining: Math.max(0, DAILY_LIMIT - todayUploads),
+      resetsAt: new Date(startOfToday.getTime() + 24 * 60 * 60 * 1000)
+    };
+
     res.status(200).json({
       success: true,
       data: {
@@ -377,6 +394,7 @@ exports.getUserStats = async (req, res, next) => {
           averageScore: 0,
           highestScore: 0
         },
+        dailyQuota,
         applications: applicationStats,
         topSkills: skillsStats.map(s => ({ name: s._id, count: s.count }))
       }

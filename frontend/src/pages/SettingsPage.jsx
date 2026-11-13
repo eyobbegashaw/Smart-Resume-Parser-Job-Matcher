@@ -216,7 +216,6 @@ export default function SettingsPage() {
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder={t('settings.phonePlaceholder')}
                 className="input-field"
               />
               <p className="mt-1 text-[11px] text-slate-400">{t('settings.phoneHint')}</p>
@@ -231,7 +230,6 @@ export default function SettingsPage() {
               list="ethiopian-cities"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="Addis Ababa"
               className="input-field"
             />
             <datalist id="ethiopian-cities">
@@ -253,7 +251,6 @@ export default function SettingsPage() {
               maxLength={500}
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              placeholder={t('settings.bioPlaceholder')}
               className="input-field resize-none"
             />
           </div>
@@ -273,7 +270,6 @@ export default function SettingsPage() {
                     addSkillChip();
                   }
                 }}
-                placeholder={t('settings.skillsPlaceholder')}
                 className="input-field"
               />
               <button type="button" onClick={addSkillChip} className="btn-secondary shrink-0">

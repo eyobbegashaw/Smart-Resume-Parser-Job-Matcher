@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Lock, Mail, ArrowRight } from 'lucide-react';
+import { Lock, Mail, ArrowRight } from 'lucide-react';
 import AuthShell from '../components/AuthShell';
+import FloatingInput from '../components/FloatingInput';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useToast } from '../contexts/ToastContext';
@@ -17,7 +18,6 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -64,56 +64,37 @@ export default function LoginPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-            {t('auth.emailLabel')}
-          </label>
-          <div className="relative">
-            <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t('auth.emailPlaceholder')}
-              className="input-field pl-11"
-            />
-          </div>
-        </div>
+      <form onSubmit={handleSubmit} className="space-y-4 pt-1">
+        <FloatingInput
+          id="login-email"
+          type="email"
+          label={t('auth.emailLabel')}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          icon={Mail}
+          required
+          autoComplete="email"
+        />
 
-        <div>
-          <div className="mb-1.5 flex items-center justify-between">
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-              {t('auth.passwordLabel')}
-            </label>
+        <div className="space-y-1.5">
+          <FloatingInput
+            id="login-password"
+            type="password"
+            label={t('auth.passwordLabel')}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            icon={Lock}
+            required
+            autoComplete="current-password"
+            showPasswordToggle
+          />
+          <div className="flex justify-end pt-1">
             <Link
               to="/forgot-password"
               className="text-xs font-semibold text-brand-600 hover:underline dark:text-brand-400"
             >
               {t('auth.forgotLink')}
             </Link>
-          </div>
-          <div className="relative">
-            <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              type={showPassword ? 'text' : 'password'}
-              required
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="input-field pl-11 pr-11"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword((v) => !v)}
-              aria-label="Toggle password visibility"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-            >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
           </div>
         </div>
 

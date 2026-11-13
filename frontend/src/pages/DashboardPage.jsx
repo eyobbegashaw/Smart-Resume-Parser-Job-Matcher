@@ -3,20 +3,22 @@ import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import {
   Award,
-  Bookmark,
   FileText,
   MailWarning,
   Sparkles,
   TrendingUp,
   UploadCloud,
-  ArrowRight
+  ArrowRight,
+  ShieldCheck,
+  Cpu,
+  Target
 } from 'lucide-react';
-import { authApi, extractErrorMessage, jobApi, resumeApi, userApi } from '../services/api';
+import { authApi, extractErrorMessage, resumeApi, userApi } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useToast } from '../contexts/ToastContext';
-import { APPLICATION_STATUSES } from '../i18n/translations';
 import { formatDate, getScoreTone } from '../utils/formatters';
+import { generateCareerDiagnostics } from '../utils/careerDiagnostics';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -26,7 +28,7 @@ export default function DashboardPage() {
 
   const [stats, setStats] = useState(null);
   const [resumes, setResumes] = useState([]);
-  const [recommended, setRecommended] = useState([]);
+  const [dailyQuota, setDailyQuota] = useState({ limit: 5, used: 0, remaining: 5, resetsAt: null });
   const [loading, setLoading] = useState(true);
   const [sendingVerify, setSendingVerify] = useState(false);
 
@@ -36,13 +38,21 @@ export default function DashboardPage() {
     Promise.allSettled([
       userApi.getStats(),
       resumeApi.getResumes(),
-      jobApi.getRecommended()
+      resumeApi.getDailyQuota()
     ])
-      .then(([statsRes, resumesRes, recRes]) => {
+      .then(([statsRes, resumesRes, quotaRes]) => {
         if (!active) return;
-        if (statsRes.status === 'fulfilled') setStats(statsRes.value.data?.data || null);
-        if (resumesRes.status === 'fulfilled') setResumes(resumesRes.value.data?.data || []);
-        if (recRes.status === 'fulfilled') setRecommended(recRes.value.data?.data || []);
+        if (statsRes.status === 'fulfilled') {
+          const statsData = statsRes.value.data?.data || null;
+          setStats(statsData);
+          if (statsData?.dailyQuota) setDailyQuota(statsData.dailyQuota);
+        }
+        if (resumesRes.status === 'fulfilled') {
+          setResumes(resumesRes.value.data?.data || []);
+        }
+        if (quotaRes.status === 'fulfilled' && quotaRes.value.data?.data) {
+          setDailyQuota(quotaRes.value.data.data);
+        }
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -82,14 +92,15 @@ export default function DashboardPage() {
     }
   };
 
-  const apps = stats?.applications || {};
-  const totalTracked = APPLICATION_STATUSES.reduce((sum, key) => sum + (Number(apps[key]) || 0), 0);
   const resumeSummary = stats?.resumes || {};
   const avgScore = Math.round(Number(resumeSummary.averageScore) || 0);
   const highScore = Math.round(Number(resumeSummary.highestScore) || 0);
   const totalResumes = Number(resumeSummary.totalResumes) || resumes.length || 0;
   const topSkills = stats?.topSkills || [];
   const maxSkillCount = Math.max(1, ...topSkills.map((s) => Number(s.count) || 1));
+
+  const latestResume = resumes[0] || null;
+  const diagnostics = generateCareerDiagnostics(latestResume?.parsedData, latestResume?.analysis);
 
   const kpiCards = [
     {
@@ -111,9 +122,9 @@ export default function DashboardPage() {
       accent: 'text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-950/60'
     },
     {
-      label: t('dashboard.kpis.savedTracked'),
-      value: totalTracked,
-      icon: Bookmark,
+      label: t('dashboard.kpis.dailyQuota'),
+      value: `${dailyQuota.used} / ${dailyQuota.limit}`,
+      icon: Sparkles,
       accent: 'text-violet-600 bg-violet-50 dark:text-violet-400 dark:bg-violet-950/60'
     }
   ];
@@ -191,41 +202,65 @@ export default function DashboardPage() {
       <div className="mt-8 grid gap-6 lg:grid-cols-12">
         {/* Left 7 cols */}
         <div className="space-y-6 lg:col-span-7">
-          {/* Application Pipeline */}
+          {/* Daily Quota & Resume Intelligence Hub */}
           <section className="dash-animate surface-card rounded-3xl p-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-bold text-slate-900 dark:text-white">
-                {t('dashboard.pipelineTitle')}
-              </h2>
-              <Link
-                to="/saved-jobs"
-                className="text-xs font-bold text-brand-600 hover:underline dark:text-brand-400"
+            <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                  {t('dashboard.quotaTitle')}
+                </h2>
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                  {t('dashboard.quotaSubtitle')}
+                </p>
+              </div>
+              <span
+                className={`self-start rounded-full px-3 py-1 text-xs font-extrabold sm:self-center ${
+                  dailyQuota.remaining <= 0
+                    ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/70 dark:text-rose-300'
+                    : 'bg-brand-50 text-brand-700 dark:bg-brand-950/60 dark:text-brand-300'
+                }`}
               >
-                {t('nav.savedJobs')}
-              </Link>
+                {t('dashboard.quotaRemainingLabel', { remaining: dailyQuota.remaining })}
+              </span>
             </div>
 
-            <div className="mt-5 space-y-3.5">
-              {APPLICATION_STATUSES.map((status) => {
-                const count = Number(apps[status]) || 0;
-                const widthPct = totalTracked > 0 ? Math.round((count / totalTracked) * 100) : 0;
-                return (
-                  <div key={status}>
-                    <div className="mb-1 flex items-center justify-between text-xs font-semibold">
-                      <span className="text-slate-700 dark:text-slate-300">
-                        {tEnum('applicationStatuses', status)}
-                      </span>
-                      <span className="font-mono text-slate-500 dark:text-slate-400">{count}</span>
-                    </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-brand-500 to-emerald-400 transition-all duration-500"
-                        style={{ width: `${widthPct}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="mt-5 space-y-3">
+              <div className="flex items-center justify-between text-xs font-semibold">
+                <span className="text-slate-700 dark:text-slate-300">
+                  {t('dashboard.quotaProgress', { used: dailyQuota.used, limit: dailyQuota.limit })}
+                </span>
+                <span className="font-mono text-slate-500 dark:text-slate-400">
+                  {Math.round((dailyQuota.used / dailyQuota.limit) * 100)}%
+                </span>
+              </div>
+              <div className="h-3 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-brand-500 via-indigo-500 to-emerald-400 transition-all duration-700"
+                  style={{ width: `${Math.min(100, Math.round((dailyQuota.used / dailyQuota.limit) * 100))}%` }}
+                />
+              </div>
+              <div className="flex items-center justify-between pt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                <span>{t('dashboard.quotaResets')}</span>
+                <span>{dailyQuota.limit} scans / day</span>
+              </div>
+            </div>
+
+            {/* Platform highlights strip */}
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 border-t border-slate-100 pt-5 dark:border-slate-800">
+              <div className="flex items-center gap-2.5 rounded-2xl bg-slate-50 p-3 dark:bg-slate-900/60">
+                <Cpu className="h-4 w-4 text-brand-600 dark:text-brand-400 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-slate-900 dark:text-white truncate">AI Engine</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">Deep bilingual ATS audit</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2.5 rounded-2xl bg-slate-50 p-3 dark:bg-slate-900/60">
+                <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-slate-900 dark:text-white truncate">PDF In-Memory</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">Zero disk persistence</p>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -320,49 +355,55 @@ export default function DashboardPage() {
             )}
           </section>
 
-          {/* AI Recommended Jobs */}
+          {/* AI Career Growth & Diagnostics ("Guess Works") */}
           <section className="dash-animate surface-card rounded-3xl p-6">
             <h2 className="flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white">
               <Sparkles className="h-4 w-4 text-brand-500" />
-              <span>{t('dashboard.recommendedTitle')}</span>
+              <span>{t('dashboard.careerGrowthTitle')}</span>
             </h2>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              {t('dashboard.careerGrowthSubtitle')}
+            </p>
 
-            {recommended.length === 0 ? (
+            {resumes.length === 0 ? (
               <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
                 {t('dashboard.noMatches')}
               </p>
             ) : (
               <div className="mt-4 space-y-3">
-                {recommended.slice(0, 4).map((job) => {
-                  const jobId = job._id || job.id;
-                  const score = typeof job.matchScore === 'number' ? Math.round(job.matchScore) : null;
-                  const tone = getScoreTone(score ?? 0);
+                {diagnostics.targetRoles.slice(0, 3).map((role, idx) => {
+                  const tone = getScoreTone(role.matchScore);
                   return (
-                    <Link
-                      key={jobId}
-                      to={`/jobs/${jobId}`}
-                      className="block rounded-2xl border border-slate-200/80 p-3.5 transition-all hover:border-brand-300 hover:bg-slate-50/70 dark:border-slate-800 dark:hover:border-brand-700/70 dark:hover:bg-slate-800/40"
+                    <div
+                      key={idx}
+                      className="rounded-2xl border border-slate-200/80 p-3.5 transition-all hover:border-brand-300 hover:bg-slate-50/70 dark:border-slate-800 dark:hover:border-brand-700/70 dark:hover:bg-slate-800/40"
                     >
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center justify-between gap-2">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
-                            {job.title}
+                            {role.title}
                           </p>
-                          <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-                            {job.company} • {job.location}
+                          <p className="truncate text-[11px] text-slate-500 dark:text-slate-400">
+                            {language === 'am' ? role.rationaleAm : role.rationaleEn}
                           </p>
                         </div>
-                        {score !== null && (
-                          <span
-                            className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-bold ${tone.badge}`}
-                          >
-                            {score}%
-                          </span>
-                        )}
+                        <span
+                          className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-bold ${tone.badge}`}
+                        >
+                          {role.matchScore}%
+                        </span>
                       </div>
-                    </Link>
+                    </div>
                   );
                 })}
+
+                <Link
+                  to="/resumes"
+                  className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 hover:underline dark:text-brand-400"
+                >
+                  <span>{t('dashboard.viewAllResumes')}</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
               </div>
             )}
           </section>

@@ -19,23 +19,25 @@ const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'));
 const AuthCallbackPage = lazy(() => import('./pages/AuthCallbackPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const ResumesPage = lazy(() => import('./pages/ResumesPage'));
-const JobDetailPage = lazy(() => import('./pages/JobDetailPage'));
-const SavedJobsPage = lazy(() => import('./pages/SavedJobsPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
-const AdminJobsPage = lazy(() => import('./pages/AdminJobsPage'));
 
 const HIDE_FOOTER_ROUTES = new Set([
   '/login',
   '/register',
   '/forgot-password',
   '/verify-otp',
-  '/auth/callback'
+  '/auth/callback',
+  '/dashboard',
+  '/resumes',
+  '/settings'
 ]);
 
 function shouldHideFooter(pathname) {
   const normalized = pathname.replace(/\/+$/, '') || '/';
   return (
     HIDE_FOOTER_ROUTES.has(normalized) ||
+    normalized.startsWith('/resumes/') ||
+    normalized.startsWith('/settings/') ||
     normalized.startsWith('/reset-password/') ||
     normalized.startsWith('/verify-email/')
   );
@@ -69,7 +71,7 @@ function AppLayout() {
               <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
               <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
-              <Route path="/jobs/:id" element={<JobDetailPage />} />
+              <Route path="/jobs/:id" element={<Navigate to="/resumes" replace />} />
 
               <Route
                 path="/dashboard"
@@ -97,11 +99,7 @@ function AppLayout() {
               />
               <Route
                 path="/saved-jobs"
-                element={
-                  <ProtectedRoute>
-                    <SavedJobsPage />
-                  </ProtectedRoute>
-                }
+                element={<Navigate to="/resumes" replace />}
               />
               <Route
                 path="/settings"
@@ -113,11 +111,7 @@ function AppLayout() {
               />
               <Route
                 path="/admin/jobs"
-                element={
-                  <ProtectedRoute adminOnly>
-                    <AdminJobsPage />
-                  </ProtectedRoute>
-                }
+                element={<Navigate to="/resumes" replace />}
               />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
@@ -135,7 +129,7 @@ export default function App() {
       <LanguageProvider>
         <ToastProvider>
           <AuthProvider>
-            <BrowserRouter>
+            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <AppLayout />
             </BrowserRouter>
           </AuthProvider>

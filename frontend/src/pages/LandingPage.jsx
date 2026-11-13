@@ -14,17 +14,18 @@ import {
   ShieldCheck,
   Sparkles,
   Target,
-  UploadCloud
+  UploadCloud,
+  Cpu,
+  Compass,
+  TrendingUp
 } from 'lucide-react';
-import { jobApi } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import JobCard from '../components/JobCard';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const FEATURE_ICONS = [FileSearch, Globe2, Target, Layers, MapPin, ShieldCheck];
-const STEP_ICONS = [UploadCloud, Sparkles, Briefcase, Award];
+const FEATURE_ICONS = [FileSearch, Award, Target, TrendingUp, Globe2, ShieldCheck];
+const STEP_ICONS = [UploadCloud, Sparkles, Award, Compass];
 
 export default function LandingPage() {
   const { isAuthenticated } = useAuth();
@@ -32,27 +33,6 @@ export default function LandingPage() {
   const rootRef = useRef(null);
   const progressBarRef = useRef(null);
   const [activeStep, setActiveStep] = useState(0);
-  const [featuredJobs, setFeaturedJobs] = useState([]);
-  const [jobsLoading, setJobsLoading] = useState(true);
-
-  useEffect(() => {
-    let active = true;
-    setJobsLoading(true);
-    jobApi
-      .getJobs({ limit: 3, page: 1 })
-      .then((res) => {
-        if (active) setFeaturedJobs(res.data?.data || []);
-      })
-      .catch(() => {
-        if (active) setFeaturedJobs([]);
-      })
-      .finally(() => {
-        if (active) setJobsLoading(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
 
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -163,9 +143,8 @@ export default function LandingPage() {
       ScrollTrigger.refresh();
     });
     return () => cancelAnimationFrame(rafId);
-  }, [jobsLoading, language]);
+  }, [language]);
 
-  const trustMetrics = t('landing.trustMetrics');
   const pipelineSteps = t('landing.pipelineSteps');
   const features = t('landing.features');
   const previewSkills = t('landing.previewCard.topSkills');
@@ -203,20 +182,6 @@ export default function LandingPage() {
                   <span>{t('landing.ctaUpload')}</span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
-              </div>
-
-              <div className="hero-stagger mt-10 grid grid-cols-3 gap-4 border-t border-slate-200/80 pt-7 dark:border-slate-800/80">
-                {Array.isArray(trustMetrics) &&
-                  trustMetrics.map((metric) => (
-                    <div key={metric.label}>
-                      <p className="text-lg font-extrabold text-slate-900 sm:text-xl dark:text-white">
-                        {metric.value}
-                      </p>
-                      <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                        {metric.label}
-                      </p>
-                    </div>
-                  ))}
               </div>
             </div>
 
@@ -409,39 +374,62 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Live Featured Jobs Strip */}
+      {/* AI Intelligence & Daily Quota Showcase */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div>
           <span className="text-xs font-extrabold uppercase tracking-widest text-brand-600 dark:text-brand-400">
-            {t('landing.liveJobsEyebrow')}
+            {language === 'am' ? 'የዕለቱ የAI ትንተና ማዕከል' : 'INTELLIGENT RESUME LAB'}
           </span>
           <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
-            {t('landing.liveJobsTitle')}
+            {language === 'am'
+              ? 'የሲቪ ትንተና፣ የሙያ ግምቶች እና በቀን 5 ነፃ የAI ፍተሻዎች'
+              : 'PDF Intelligence, Career Diagnostics & 5 Daily Scans'}
           </h2>
         </div>
 
-        {jobsLoading ? (
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
-            {[1, 2, 3].map((n) => (
-              <div
-                key={n}
-                className="surface-card h-56 animate-pulse rounded-2xl bg-slate-100/70 dark:bg-slate-800/40"
-              />
-            ))}
-          </div>
-        ) : featuredJobs.length > 0 ? (
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
-            {featuredJobs.map((job) => (
-              <JobCard key={job._id || job.id} job={job} compact />
-            ))}
-          </div>
-        ) : (
-          <div className="surface-card mt-8 rounded-2xl p-8 text-center">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              {t('landing.liveJobsEmpty')}
+        <div className="mt-8 grid gap-6 md:grid-cols-3">
+          <div className="surface-card rounded-3xl p-6 transition-all hover:border-brand-300">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 dark:bg-brand-950 dark:text-brand-400">
+              <FileSearch className="h-5 w-5" />
+            </div>
+            <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">
+              {language === 'am' ? 'የተሟላ የሲቪ መረጃ ማውጫ' : 'Structured PDF Extraction'}
+            </h3>
+            <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+              {language === 'am'
+                ? 'የስራ ልምድ፣ የትምህርት ታሪክ፣ ቴክኒካል እና ማህበራዊ ክህሎቶችን እንዲሁም ማጠቃለያዎችን በከፍተኛ ጥራት ያወጣል።'
+                : 'Extracts verified career timelines, academic credentials, hard & soft skills, and executive summaries with zero hallucination.'}
             </p>
           </div>
-        )}
+
+          <div className="surface-card rounded-3xl p-6 transition-all hover:border-brand-300">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-400">
+              <Compass className="h-5 w-5" />
+            </div>
+            <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">
+              {language === 'am' ? 'የሙያ አቅጣጫ እና ግምቶች' : 'AI Career Diagnostics ("Guess Works")'}
+            </h3>
+            <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+              {language === 'am'
+                ? 'ከተገኙት ክህሎቶችዎ በመነሳት ተስማሚ የሥራ መደቦችን፣ የሙያ ደረጃን እና የሚመከሩ ክህሎቶችን ይገምታል።'
+                : 'Infers high-probability role matches, seniority horizon, and recommended next-level skills to maximize market value.'}
+            </p>
+          </div>
+
+          <div className="surface-card rounded-3xl p-6 transition-all hover:border-brand-300">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
+              <Cpu className="h-5 w-5" />
+            </div>
+            <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">
+              {language === 'am' ? 'በቀን 5 ነፃ የAI ፍተሻዎች' : '5 Free Daily AI Scans Allowance'}
+            </h3>
+            <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+              {language === 'am'
+                ? 'እያንዳንዱ ተጠቃሚ በቀን 5 ነፃ የAI ትንተናዎችን ያገኛል። ተጨማሪ ትንተና በየቀኑ በ00:00 UTC ይታደሳል።'
+                : 'Every account gets 5 deep AI resume audits per calendar day, with your daily AI limit resetting at midnight UTC.'}
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* Final Enterprise CTA */}

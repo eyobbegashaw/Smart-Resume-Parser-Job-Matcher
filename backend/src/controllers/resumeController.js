@@ -6,6 +6,8 @@ const aiParser = require('../services/aiParser');
 const jobMatcher = require('../services/jobMatcher');
 const logger = require('../utils/logger');
 
+const DAILY_RESUME_LIMIT = 5;
+
 /**
  * @desc    Upload and parse resume
  * @route   POST /api/resumes/upload
@@ -26,6 +28,30 @@ exports.uploadResume = async (req, res, next) => {
     const userId = req.user.id;
     const language = req.body.language === 'am' ? 'am' : 'en';
 
+    // Enforce 5-resumes-per-day limit
+    const startOfToday = new Date();
+    startOfToday.setUTCHours(0, 0, 0, 0);
+
+    const todayCount = await Resume.countDocuments({
+      userId,
+      createdAt: { $gte: startOfToday }
+    });
+
+    if (todayCount >= DAILY_RESUME_LIMIT) {
+      return res.status(429).json({
+        success: false,
+        error: language === 'am'
+          ? 'የዕለታዊ ገደብ ላይ ደርሰዋል (በቀን 5 ሲቪ ብቻ)። እባክዎ ተጨማሪ ሲቪዎችን ለመተንተን ነገ ይመለሱ።'
+          : 'Daily limit reached (5/5 resumes analyzed today). Please return tomorrow to analyze more resumes.',
+        dailyQuota: {
+          limit: DAILY_RESUME_LIMIT,
+          used: todayCount,
+          remaining: 0,
+          resetsAt: new Date(startOfToday.getTime() + 24 * 60 * 60 * 1000)
+        }
+      });
+    }
+
     // Create resume record
     resume = await Resume.create({
       userId,
@@ -40,9 +66,22 @@ exports.uploadResume = async (req, res, next) => {
     resume.rawText = extracted.text;
     await resume.save();
 
-    // Parse and analyze with AI
-    const parsedData = await aiParser.parseResume(extracted.text, language);
-    const analysis = await aiParser.analyzeResume(parsedData, language);
+    // Parse and analyze (with seamless fallback)
+    let parsedData;
+    try {
+      parsedData = await aiParser.parseResume(extracted.text, language);
+    } catch (parseErr) {
+      logger.warn('AI parsing threw unexpected error, utilizing fallback parser:', parseErr);
+      parsedData = aiParser.fallbackParseResume(extracted.text, language);
+    }
+
+    let analysis;
+    try {
+      analysis = await aiParser.analyzeResume(parsedData, language);
+    } catch (analysisErr) {
+      logger.warn('AI analysis threw unexpected error, utilizing fallback analyzer:', analysisErr);
+      analysis = aiParser.fallbackAnalyzeResume(parsedData, language);
+    }
 
     resume.parsedData = parsedData;
     resume.analysis = analysis;
@@ -69,6 +108,8 @@ exports.uploadResume = async (req, res, next) => {
       $addToSet: { resumes: resume._id }
     });
 
+    const updatedTodayCount = todayCount + 1;
+
     res.status(200).json({
       success: true,
       data: {
@@ -76,6 +117,12 @@ exports.uploadResume = async (req, res, next) => {
         parsedData: resume.parsedData,
         analysis: resume.analysis,
         matchedJobs: resume.matchedJobs,
+        dailyQuota: {
+          limit: DAILY_RESUME_LIMIT,
+          used: updatedTodayCount,
+          remaining: Math.max(0, DAILY_RESUME_LIMIT - updatedTodayCount),
+          resetsAt: new Date(startOfToday.getTime() + 24 * 60 * 60 * 1000)
+        },
         message: language === 'am'
           ? 'የሥራ መግለጫዎ በተሳካ ሁኔታ ተተንትኗል'
           : 'Resume parsed successfully'
@@ -209,15 +256,55 @@ exports.analyzeSkillGap = async (req, res, next) => {
     }
 
     const language = req.body.language === 'am' ? 'am' : 'en';
-    const gapAnalysis = await aiParser.analyzeSkillGap(
-      resume.parsedData.skills,
-      job,
-      language
-    );
+    let gapAnalysis;
+    try {
+      gapAnalysis = await aiParser.analyzeSkillGap(
+        resume.parsedData.skills,
+        job,
+        language
+      );
+    } catch (gapErr) {
+      logger.warn('Skill gap analysis threw unexpected error, utilizing fallback:', gapErr);
+      gapAnalysis = aiParser.fallbackAnalyzeSkillGap(
+        resume.parsedData.skills,
+        job,
+        language
+      );
+    }
 
     res.status(200).json({
       success: true,
       data: gapAnalysis
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Get user's daily resume analysis quota (5 per day limit)
+ * @route   GET /api/resumes/daily-quota
+ * @access  Private
+ */
+exports.getDailyQuota = async (req, res, next) => {
+  try {
+    const startOfToday = new Date();
+    startOfToday.setUTCHours(0, 0, 0, 0);
+
+    const todayCount = await Resume.countDocuments({
+      userId: req.user.id,
+      createdAt: { $gte: startOfToday }
+    });
+
+    const DAILY_LIMIT = DAILY_RESUME_LIMIT;
+    res.status(200).json({
+      success: true,
+      data: {
+        limit: DAILY_LIMIT,
+        used: todayCount,
+        remaining: Math.max(0, DAILY_LIMIT - todayCount),
+        resetsAt: new Date(startOfToday.getTime() + 24 * 60 * 60 * 1000)
+      }
     });
   } catch (error) {
     next(error);

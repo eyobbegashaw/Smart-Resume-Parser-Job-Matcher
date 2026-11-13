@@ -542,7 +542,6 @@ export default function VerifyOtpPage() {
                           type="email"
                           value={emailInput}
                           onChange={(e) => setEmailInput(e.target.value)}
-                          placeholder={t('auth.emailPlaceholder')}
                           className="input-field py-2 pl-10 text-sm"
                         />
                       </div>

@@ -131,6 +131,7 @@ describe('Backend App & Route Integration (mocked DB)', () => {
     jest.spyOn(Resume, 'aggregate')
       .mockResolvedValueOnce([{ totalResumes: 2, averageScore: 80, highestScore: 90 }])
       .mockResolvedValueOnce([{ _id: 'JavaScript', count: 2 }]);
+    jest.spyOn(Resume, 'countDocuments').mockResolvedValue(1);
     jest.spyOn(SavedJob, 'aggregate').mockResolvedValueOnce([{ _id: 'saved', count: 3 }]);
 
     const res = await request(app)
@@ -140,6 +141,9 @@ describe('Backend App & Route Integration (mocked DB)', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.resumes.totalResumes).toBe(2);
+    expect(res.body.data.dailyQuota.limit).toBe(5);
+    expect(res.body.data.dailyQuota.used).toBe(1);
+    expect(res.body.data.dailyQuota.remaining).toBe(4);
     expect(res.body.data.applications.saved).toBe(3);
     expect(res.body.data.topSkills).toEqual([{ name: 'JavaScript', count: 2 }]);
   });
@@ -217,6 +221,103 @@ describe('Backend App & Route Integration (mocked DB)', () => {
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
     expect(res.body.error).toMatch(/Only PDF files are allowed/i);
+  });
+
+  test('POST /api/resumes/upload successfully parses resume and returns 200 even without external AI', async () => {
+    const userId = new mongoose.Types.ObjectId().toString();
+    const token = jwt.sign({ id: userId }, process.env.JWT_SECRET);
+    const pdfParser = require('../src/services/pdfParser');
+    const jobMatcher = require('../src/services/jobMatcher');
+
+    jest.spyOn(User, 'findById').mockReturnValue({
+      select: jest.fn().mockResolvedValue({ _id: userId, id: userId, role: 'user', status: 'active' })
+    });
+    jest.spyOn(User, 'findByIdAndUpdate').mockResolvedValue({});
+    jest.spyOn(Resume, 'countDocuments').mockResolvedValue(0);
+    jest.spyOn(jobMatcher, 'findMatchingJobs').mockResolvedValue([]);
+
+    jest.spyOn(pdfParser, 'extractText').mockResolvedValue({
+      text: 'Dawit Bekele\ndawit@example.com\n+251911223344\nAddis Ababa\nSoftware Engineer\nReact, Node.js, MongoDB\nAAU BSc 2021\nEnglish, Amharic'
+    });
+
+    const mockResume = {
+      _id: new mongoose.Types.ObjectId(),
+      userId,
+      fileName: 'my_resume.pdf',
+      save: jest.fn().mockResolvedValue(true)
+    };
+    jest.spyOn(Resume, 'create').mockResolvedValue(mockResume);
+
+    const res = await request(app)
+      .post('/api/resumes/upload')
+      .set('Authorization', `Bearer ${token}`)
+      .attach('resume', Buffer.from('%PDF-1.4 mock pdf content'), {
+        filename: 'my_resume.pdf',
+        contentType: 'application/pdf'
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.parsedData.name).toBe('Dawit Bekele');
+    expect(res.body.data.parsedData.email).toBe('dawit@example.com');
+    expect(res.body.data.parsedData.skills.all).toContain('React');
+    expect(res.body.data.analysis.score).toBeGreaterThan(0);
+    expect(res.body.data.message).toBe('Resume parsed successfully');
+    expect(res.body.data.dailyQuota).toEqual(expect.objectContaining({
+      limit: 5,
+      used: 1,
+      remaining: 4
+    }));
+  });
+
+  test('GET /api/resumes/daily-quota returns current daily quota usage and limit', async () => {
+    const userId = new mongoose.Types.ObjectId().toString();
+    const token = jwt.sign({ id: userId }, process.env.JWT_SECRET);
+
+    jest.spyOn(User, 'findById').mockReturnValue({
+      select: jest.fn().mockResolvedValue({ _id: userId, id: userId, role: 'user', status: 'active' })
+    });
+    jest.spyOn(Resume, 'countDocuments').mockResolvedValue(2);
+
+    const res = await request(app)
+      .get('/api/resumes/daily-quota')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual(expect.objectContaining({
+      limit: 5,
+      used: 2,
+      remaining: 3
+    }));
+    expect(res.body.data.resetsAt).toBeDefined();
+  });
+
+  test('POST /api/resumes/upload blocks with 429 when daily upload quota of 5 is exceeded', async () => {
+    const userId = new mongoose.Types.ObjectId().toString();
+    const token = jwt.sign({ id: userId }, process.env.JWT_SECRET);
+
+    jest.spyOn(User, 'findById').mockReturnValue({
+      select: jest.fn().mockResolvedValue({ _id: userId, id: userId, role: 'user', status: 'active' })
+    });
+    jest.spyOn(Resume, 'countDocuments').mockResolvedValue(5);
+
+    const res = await request(app)
+      .post('/api/resumes/upload')
+      .set('Authorization', `Bearer ${token}`)
+      .attach('resume', Buffer.from('%PDF-1.4 mock pdf content'), {
+        filename: 'my_resume.pdf',
+        contentType: 'application/pdf'
+      });
+
+    expect(res.status).toBe(429);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toMatch(/limit/i);
+    expect(res.body.dailyQuota).toEqual(expect.objectContaining({
+      limit: 5,
+      used: 5,
+      remaining: 0
+    }));
   });
 
   test('rateLimiter and background queues operate in-process without Redis', async () => {

@@ -152,6 +152,118 @@ describe('Database, Models, Services & Utils', () => {
       expect(info.emails).toEqual(['addis@example.com']);
       expect(info.phones).toEqual(['+251911223344']);
     });
+
+    test('fallbackParseResume extracts Ethiopian resume details (AAU, Bole, React, Node.js, Amharic)', () => {
+      const sampleText = `
+        Dawit Bekele
+        dawit.dev@example.com
+        +251911223344
+        Addis Ababa, Ethiopia
+
+        Professional Summary
+        Senior Full Stack Developer with 4 years building fintech and telebirr integrations.
+
+        Education
+        Bachelor of Science (BSc) in Software Engineering
+        Addis Ababa University (AAU), 2021
+
+        Experience
+        Senior Software Engineer
+        Commercial Bank of Ethiopia (CBE)
+        2021 - Present
+        - Built microservices and payment workflows
+
+        Skills
+        React, Node.js, TypeScript, MongoDB, Docker, Telebirr, Communication, Problem Solving
+
+        Languages
+        English, Amharic
+      `;
+
+      const parsed = aiParser.fallbackParseResume(sampleText, 'en');
+      expect(parsed.name).toBe('Dawit Bekele');
+      expect(parsed.email).toBe('dawit.dev@example.com');
+      expect(parsed.phone).toBe('+251911223344');
+      expect(parsed.location).toBe('Addis Ababa, Ethiopia');
+      expect(parsed.education).toHaveLength(1);
+      expect(parsed.education[0].institution).toContain('Addis Ababa University');
+      expect(parsed.education[0].graduationYear).toBe(2021);
+      expect(parsed.skills.hard).toContain('React');
+      expect(parsed.skills.hard).toContain('Node.js');
+      expect(parsed.skills.hard).toContain('Telebirr');
+      expect(parsed.skills.soft).toContain('Problem Solving');
+      expect(parsed.skills.all).toContain('React');
+      expect(parsed.languages.map(l => l.name)).toEqual(expect.arrayContaining(['Amharic', 'English']));
+    });
+
+    test('fallbackAnalyzeResume generates bilingual ATS feedback in English and Amharic', () => {
+      const sampleData = {
+        name: 'Sara Tesfaye',
+        email: 'sara@example.com',
+        phone: '+251922334455',
+        location: 'Hawassa, Ethiopia',
+        education: [{ degree: 'BSc', institution: 'Hawassa University', graduationYear: 2022 }],
+        skills: { hard: ['Python', 'Django', 'PostgreSQL'], soft: ['Teamwork'], all: ['Python', 'Django', 'PostgreSQL', 'Teamwork'] },
+        experience: [{ role: 'Backend Developer', company: 'Tech', duration: '2022 - Present' }]
+      };
+
+      const enAnalysis = aiParser.fallbackAnalyzeResume(sampleData, 'en');
+      expect(enAnalysis.score).toBeGreaterThanOrEqual(60);
+      expect(enAnalysis.strengths.length).toBeGreaterThan(0);
+      expect(enAnalysis.feedback.length).toBeGreaterThan(0);
+      expect(enAnalysis.feedback[0]).toHaveProperty('category');
+
+      const amAnalysis = aiParser.fallbackAnalyzeResume(sampleData, 'am');
+      expect(amAnalysis.score).toBe(enAnalysis.score);
+      expect(amAnalysis.strengths[0]).toMatch(/[\u1200-\u137F]/);
+    });
+
+    test('fallbackAnalyzeSkillGap computes matches and missing requirements', () => {
+      const targetJob = {
+        requiredSkills: [{ name: 'React' }, { name: 'Node.js' }, { name: 'MongoDB' }],
+        preferredSkills: [{ name: 'Docker' }]
+      };
+      const resumeSkills = { hard: ['React', 'Node.js'], soft: [] };
+
+      const gap = aiParser.fallbackAnalyzeSkillGap(resumeSkills, targetJob, 'en');
+      expect(gap.matchedSkills).toEqual(['React', 'Node.js']);
+      expect(gap.missingRequired).toEqual(['MongoDB']);
+      expect(gap.missingPreferred).toEqual(['Docker']);
+      expect(gap.recommendations.length).toBeGreaterThan(0);
+    });
+
+    test('parseResume and analyzeResume gracefully fallback when Gemini throws (e.g. 404 or network)', async () => {
+      jest.spyOn(aiParser, 'hasApiKey').mockReturnValue(true);
+      jest.spyOn(aiParser, 'getModel').mockReturnValue({
+        generateContent: jest.fn().mockRejectedValue(new Error('[GoogleGenerativeAI Error]: [404 Not Found]'))
+      });
+
+      const parsed = await aiParser.parseResume('Abebe Kebede\nabebe@example.com\n+251911000000\nSoftware Engineer\nPython, React');
+      expect(parsed.name).toBe('Abebe Kebede');
+      expect(parsed.email).toBe('abebe@example.com');
+      expect(parsed.skills.all).toContain('Python');
+
+      const analysis = await aiParser.analyzeResume(parsed, 'en');
+      expect(analysis.score).toBeGreaterThanOrEqual(40);
+      expect(analysis.strengths.length).toBeGreaterThan(0);
+    });
+
+    test('fallbackParseResume leaves missing fields as undefined/empty without hardcoded placeholder data', () => {
+      const minimalText = 'Abebe Kebede\nabebe@example.com\nPython, Docker';
+      const parsed = aiParser.fallbackParseResume(minimalText, 'en');
+
+      expect(parsed.name).toBe('Abebe Kebede');
+      expect(parsed.email).toBe('abebe@example.com');
+      expect(parsed.phone).toBeUndefined();
+      expect(parsed.location).toBeUndefined();
+      expect(parsed.summary).toBeUndefined();
+      expect(parsed.education).toEqual([]);
+      expect(parsed.experience).toEqual([]);
+      expect(parsed.skills.all).toEqual(['Python', 'Docker']);
+      expect(JSON.stringify(parsed)).not.toContain('Enterprise Technology Solutions');
+      expect(JSON.stringify(parsed)).not.toContain('Digital Services');
+      expect(JSON.stringify(parsed)).not.toContain('Addis Ababa, Ethiopia');
+    });
   });
 
   describe('JobMatcherService, ScraperService & EmailService', () => {

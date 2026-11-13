@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="talentPulseBg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#022c22" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- Background badge with smooth rounded corners -->
+  <rect width="64" height="64" rx="16" fill="url(#talentPulseBg)" />
+  <rect x="1" y="1" width="62" height="62" rx="15" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="1.5" />
+
+  <!-- Primary Sparkle -->
+  <path d="M28 12 C28 22 22 28 12 28 C22 28 28 34 28 44 C28 34 34 28 44 28 C34 28 28 22 28 12 Z" fill="#FFFFFF" filter="url(#glow)" />
+
+  <!-- Secondary Sparkle (top right) -->
+  <path d="M46 12 C46 18 43 21 37 21 C43 21 46 24 46 30 C46 24 49 21 55 21 C49 21 46 18 46 12 Z" fill="#FDE68A" />
+
+  <!-- Tertiary Sparkle (bottom right) -->
+  <path d="M46 41 C46 45 44 47 40 47 C44 47 46 49 46 53 C46 49 48 47 52 47 C48 47 46 45 46 41 Z" fill="#FFFFFF" fill-opacity="0.9" />
+</svg>

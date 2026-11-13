@@ -134,6 +134,7 @@ export const authApi = {
 };
 
 export const resumeApi = {
+  getDailyQuota: () => api.get('/api/resumes/daily-quota'),
   uploadResume: (file, language = 'en', onUploadProgress) => {
     const formData = new FormData();
     formData.append('resume', file);

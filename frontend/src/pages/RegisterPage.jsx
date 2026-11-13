@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Lock, Mail, User, ArrowRight } from 'lucide-react';
+import { Lock, Mail, User, ArrowRight } from 'lucide-react';
 import AuthShell from '../components/AuthShell';
+import FloatingInput from '../components/FloatingInput';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useToast } from '../contexts/ToastContext';
@@ -18,7 +19,6 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -72,86 +72,58 @@ export default function RegisterPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-            {t('auth.nameLabel')}
-          </label>
-          <div className="relative">
-            <User className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              required
-              minLength={2}
-              maxLength={50}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t('auth.namePlaceholder')}
-              className="input-field pl-11"
-            />
-          </div>
+      <form onSubmit={handleSubmit} className="space-y-4 pt-1">
+        <FloatingInput
+          id="register-name"
+          type="text"
+          label={t('auth.nameLabel')}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          icon={User}
+          required
+          minLength={2}
+          maxLength={50}
+        />
+
+        <FloatingInput
+          id="register-email"
+          type="email"
+          label={t('auth.emailLabel')}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          icon={Mail}
+          required
+          autoComplete="email"
+        />
+
+        <div className="space-y-1">
+          <FloatingInput
+            id="register-password"
+            type="password"
+            label={t('auth.passwordLabel')}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            icon={Lock}
+            required
+            minLength={6}
+            showPasswordToggle
+          />
+          <p className="px-1 text-[11px] text-slate-400 dark:text-slate-500">
+            {t('auth.rememberHint')}
+          </p>
         </div>
 
-        <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-            {t('auth.emailLabel')}
-          </label>
-          <div className="relative">
-            <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t('auth.emailPlaceholder')}
-              className="input-field pl-11"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-            {t('auth.passwordLabel')}
-          </label>
-          <div className="relative">
-            <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              type={showPassword ? 'text' : 'password'}
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={t('auth.passwordPlaceholder')}
-              className="input-field pl-11 pr-11"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword((v) => !v)}
-              aria-label="Toggle password visibility"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-            >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
-          </div>
-          <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">{t('auth.rememberHint')}</p>
-        </div>
-
-        <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-            {t('auth.confirmPasswordLabel')}
-          </label>
-          <div className="relative">
-            <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              type={showPassword ? 'text' : 'password'}
-              required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="••••••••"
-              className="input-field pl-11"
-            />
-          </div>
-        </div>
+        <FloatingInput
+          id="register-confirm-password"
+          type="password"
+          label={t('auth.confirmPasswordLabel')}
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          icon={Lock}
+          required
+          minLength={6}
+          showPasswordToggle
+        />
 
         <button type="submit" disabled={submitting} className="btn-primary w-full py-2.5">
           <span>{submitting ? t('common.loading') : t('auth.signUpBtn')}</span>

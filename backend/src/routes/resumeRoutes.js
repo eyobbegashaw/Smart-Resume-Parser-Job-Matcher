@@ -9,12 +9,14 @@ const {
   getResume,
   getUserResumes,
   deleteResume,
-  analyzeSkillGap
+  analyzeSkillGap,
+  getDailyQuota
 } = require('../controllers/resumeController');
 
 // All routes require authentication
 router.use(protect);
 
+router.get('/daily-quota', getDailyQuota);
 router.post(
   '/upload',
   uploadLimiter,
