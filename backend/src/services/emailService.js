@@ -19,7 +19,7 @@ class EmailService {
     const smtpFrom = (process.env.SMTP_FROM || '').trim();
     const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim().toLowerCase();
     // Avoid unaligned placeholder From headers on Gmail SMTP so mail reaches Inbox instead of Spam
-    if (host === 'smtp.gmail.com' && smtpUser && (!smtpFrom || smtpFrom === 'noreply@resumeparser.et')) {
+    if (host === 'smtp.gmail.com' && (!smtpFrom || smtpFrom === 'noreply@resumeparser.et') && smtpUser) {
       return `"TalentPulse ET" <${smtpUser}>`;
     }
     return `"TalentPulse ET" <${smtpFrom || smtpUser || 'noreply@resumeparser.et'}>`;
@@ -27,25 +27,38 @@ class EmailService {
 
   getTransporter() {
     if (!this.transporter) {
-      const port = Number(process.env.SMTP_PORT) || 587;
-      const secure = process.env.SMTP_SECURE !== undefined
-        ? process.env.SMTP_SECURE === 'true'
-        : port === 465;
+      const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim().toLowerCase();
+      const isGmail = host === 'smtp.gmail.com' || (process.env.SMTP_USER || '').endsWith('@gmail.com');
 
-      this.transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port,
-        secure,
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-        socketTimeout: 15000,
-        auth: process.env.SMTP_USER && process.env.SMTP_PASS
-          ? {
-              user: process.env.SMTP_USER,
-              pass: process.env.SMTP_PASS
-            }
-          : undefined
-      });
+      if (isGmail && process.env.SMTP_USER && process.env.SMTP_PASS) {
+        this.transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS
+          }
+        });
+      } else {
+        const port = Number(process.env.SMTP_PORT) || 587;
+        const secure = process.env.SMTP_SECURE !== undefined
+          ? process.env.SMTP_SECURE === 'true'
+          : port === 465;
+
+        this.transporter = nodemailer.createTransport({
+          host: process.env.SMTP_HOST || 'smtp.gmail.com',
+          port,
+          secure,
+          connectionTimeout: 10000,
+          greetingTimeout: 10000,
+          socketTimeout: 15000,
+          auth: process.env.SMTP_USER && process.env.SMTP_PASS
+            ? {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS
+              }
+            : undefined
+        });
+      }
     }
     return this.transporter;
   }
@@ -117,7 +130,6 @@ class EmailService {
    */
   async sendOtpEmail(user, otp, options = {}) {
     const language = options.language === 'am' ? 'am' : 'en';
-    const provider = options.provider === 'google' ? 'google' : 'local';
     const expiresMinutes = options.expiresMinutes || 10;
     const safeName = this.escapeHtml(user.name || user.email);
     const safeEmail = this.escapeHtml(user.email);
@@ -126,19 +138,16 @@ class EmailService {
 
     const copy = isAm
       ? {
-          subject: `${otp} የማረጋገጫ ኮድዎ ነው • TalentPulse ET`,
-          preheader: `የ6-አሃዝ የማረጋገጫ ኮድዎ ${otp} ነው። ኮዱን ቀድተው በገጹ ላይ ይለጥፉ።`,
+          subject: `TalentPulse ET፡ የማረጋገጫ ኮድዎ ${otp} ነው`,
           brand: 'TalentPulse ET',
           brandSub: 'ብልህ የሲቪ ትንተና እና የሥራ ማዛመጃ',
-          providerBadge: provider === 'google' ? 'በGoogle መለያ ምዝገባ' : 'በኢሜይል ምዝገባ',
-          heading: 'ኢሜይልዎን ያረጋግጡ',
+          badge: 'የTalentPulse ET መለያ ማረጋገጫ',
+          heading: 'የኢሜይል ማረጋገጫ ኮድ',
           greeting: `ሰላም ${safeName}፣`,
           intro:
-            provider === 'google'
-              ? 'በGoogle መለያዎ ምዝገባውን ለማጠናቀቅ ከዚህ በታች ያለውን ባለ 6-አሃዝ የማረጋገጫ ኮድ ቀድተው በኦቲፒ መሙያ ገጹ ላይ ይለጥፉ።'
-              : 'ምዝገባዎን ለማጠናቀቅ ከዚህ በታች ያለውን ባለ 6-አሃዝ የማረጋገጫ ኮድ ቀድተው በኦቲፒ መሙያ ገጹ ላይ ይለጥፉ።',
-          otpLabel: 'የአንድ ጊዜ የማረጋገጫ ኮድ (OTP)',
-          copyBadge: '📋 ባለ 6-አሃዙን ኮድ ይቅዱ (Copy)',
+            'የTalentPulse ET መለያዎን ማረጋገጥ ለማጠናቀቅ ከዚህ በታች ያለውን ባለ 6-አሃዝ የማረጋገጫ ኮድ ቀድተው በኦቲፒ መሙያ ገጹ ላይ ይለጥፉ።',
+          otpLabel: 'የማረጋገጫ ኮድ (OTP)',
+          copyBadge: '📋 ባለ 6-አሃዙን ኮድ ይቅዱ (Copy 6-Digit Code)',
           copyHint: 'ኮዱን በቀላሉ ለመቅዳት ጠቅ ያድርጉ፤ ከዚያም ወደ ድረ-ገጹ በመመለስ "ኮድ ለጥፍ" የሚለውን ይጫኑ ወይም ይለጥፉ (Paste)።',
           fallbackCopyLabel: 'ባለ 6-አሃዝ ኮድ፡',
           expiryTitle: 'የኮዱ የቆይታ ጊዜ',
@@ -148,23 +157,22 @@ class EmailService {
           footer: 'TalentPulse ET • አዲስ አበባ፣ ኢትዮጵያ',
           textBody:
             `ሰላም ${user.name || ''}፣\n\n` +
-            `የ6-አሃዝ የማረጋገጫ ኮድዎ፡ ${otp}\n\n` +
-            `እባክዎ ይህን ኮድ ቀድተው በማረጋገጫ ገጹ ላይ ይለጥፉ።\n` +
-            `ይህ ኮድ በ${expiresMinutes} ደቂቃ ውስጥ ጊዜው ያበቃል።\n`
+            `የTalentPulse ET የ6-አሃዝ የማረጋገጫ ኮድዎ፡ ${otp}\n\n` +
+            `ይህ ኮድ ለ${expiresMinutes} ደቂቃዎች ያገለግላል።\n` +
+            `እባክዎ ይህን ኮድ ቀድተው በማረጋገጫ ገጹ ላይ ይለጥፉ።\n\n` +
+            `ይህን መለያ እርስዎ ካልፈጠሩት ይህን መልዕክት ችላ ማለት ይችላሉ።\n\n` +
+            `TalentPulse ET • አዲስ አበባ፣ ኢትዮጵያ\n`
         }
       : {
-          subject: `${otp} is your verification code • TalentPulse ET`,
-          preheader: `Your 6-digit verification code is ${otp}. Copy and paste into the verification page.`,
+          subject: `TalentPulse ET: Your verification code is ${otp}`,
           brand: 'TalentPulse ET',
           brandSub: 'AI Resume Intelligence & Job Matcher',
-          providerBadge: provider === 'google' ? 'Google Account Registration' : 'Email Registration',
+          badge: 'TalentPulse ET Account Verification',
           heading: 'Verify your email address',
           greeting: `Hello ${safeName},`,
           intro:
-            provider === 'google'
-              ? 'To finish registering with your Google account, copy the 6-digit OTP verification code below and paste it into the verification screen.'
-              : 'To complete your registration and enter your personal workspace, copy the 6-digit OTP verification code below and paste it into the verification screen.',
-          otpLabel: 'ONE-TIME 6-DIGIT CODE',
+            'To finish setting up your TalentPulse ET account, please copy the 6-digit verification code below and paste it into the verification screen.',
+          otpLabel: 'VERIFICATION CODE (OTP)',
           copyBadge: '📋 Copy 6-Digit Code',
           copyHint: 'Tap or double-click to copy the code, then return to your verification page and click "Paste Code".',
           fallbackCopyLabel: '6-digit code:',
@@ -176,9 +184,11 @@ class EmailService {
           footer: 'TalentPulse ET • Addis Ababa, Ethiopia',
           textBody:
             `Hello ${user.name || ''},\n\n` +
-            `Your 6-digit verification code is: ${otp}\n\n` +
-            `Please copy this code and paste it on the verification page.\n` +
-            `This code expires in ${expiresMinutes} minutes.\n`
+            `Your TalentPulse ET 6-digit verification code is: ${otp}\n\n` +
+            `This code is valid for ${expiresMinutes} minutes.\n` +
+            `Please copy this code and paste it on the verification page.\n\n` +
+            `If you did not create an account, you can safely ignore this email.\n\n` +
+            `TalentPulse ET • Addis Ababa, Ethiopia\n`
         };
 
     const html = `
@@ -190,9 +200,6 @@ class EmailService {
           <title>${this.escapeHtml(copy.subject)}</title>
         </head>
         <body style="margin:0;padding:0;background-color:#f1f5f9;font-family:${isAm ? "'Noto Serif Ethiopic','Nyala','Abyssinica SIL'," : ''}-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0f172a;">
-          <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
-            ${this.escapeHtml(copy.preheader)}
-          </div>
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color:#f1f5f9;padding:32px 16px;">
             <tr>
               <td align="center">
@@ -204,7 +211,7 @@ class EmailService {
                         <tr>
                           <td>
                             <span style="display:inline-block;background-color:rgba(16,185,129,0.22);border:1px solid rgba(52,211,153,0.4);color:#6ee7b7;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:5px 12px;border-radius:999px;">
-                              ${this.escapeHtml(copy.providerBadge)}
+                              ${this.escapeHtml(copy.badge)}
                             </span>
                             <h1 style="margin:14px 0 4px;font-size:24px;line-height:1.25;font-weight:800;color:#ffffff;">
                               ${this.escapeHtml(copy.heading)}
@@ -336,11 +343,8 @@ class EmailService {
     const copy = isAm
       ? {
           subject: resetOtp
-            ? `${resetOtp} የይለፍ ቃል መቀየሪያ ኮድዎ ነው • TalentPulse ET`
-            : 'የይለፍ ቃልዎን ይቀይሩ • TalentPulse ET',
-          preheader: resetOtp
-            ? `የይለፍ ቃል መቀየሪያ ኮድዎ ${resetOtp} ነው። ኮዱን ቀድተው በይለፍ ቃል መቀየሪያ ገጹ ላይ ያስገቡ።`
-            : `አዲስ ይለፍ ቃል ለመፍጠር ይህን መልዕክት ይክፈቱ (በ${expiresMinutes} ደቂቃ ውስጥ ጊዜው ያበቃል)።`,
+            ? `TalentPulse ET፡ የይለፍ ቃል መቀየሪያ ኮድዎ ${resetOtp} ነው`
+            : 'TalentPulse ET፡ የይለፍ ቃልዎን ይቀይሩ',
           badge: 'የይለፍ ቃል መቀየሪያ ጥያቄ',
           heading: 'አዲስ ይለፍ ቃል ያዘጋጁ',
           brand: 'TalentPulse ET',
@@ -360,15 +364,13 @@ class EmailService {
             `ሰላም ${user.name || ''}፣\n\n` +
             `አዲስ ይለፍ ቃል ለማስገባት ይህን አገናኝ ይክፈቱ፡ ${resetUrl}\n` +
             (resetOtp ? `ወይም ባለ 6-አሃዝ ኮዱን ቀድተው በማገገሚያ ገጹ ላይ ይለጥፉ፡ ${resetOtp}\n` : '') +
-            `ይህ አገናኝ እና ኮድ በ${expiresMinutes} ደቂቃ ውስጥ ጊዜው ያበቃል።\n`
+            `ይህ አገናኝ እና ኮድ በ${expiresMinutes} ደቂቃ ውስጥ ጊዜው ያበቃል።\n\n` +
+            `TalentPulse ET • አዲስ አበባ፣ ኢትዮጵያ\n`
         }
       : {
           subject: resetOtp
-            ? `${resetOtp} is your password reset code • TalentPulse ET`
-            : 'Reset Your Password • TalentPulse ET',
-          preheader: resetOtp
-            ? `Your 6-digit password reset code is ${resetOtp}. Copy and paste into the password recovery screen.`
-            : `Set and confirm your new TalentPulse ET password within ${expiresMinutes} minutes.`,
+            ? `TalentPulse ET: Your password reset code is ${resetOtp}`
+            : 'TalentPulse ET: Password reset request',
           badge: 'Password Recovery',
           heading: 'Set your new password',
           brand: 'TalentPulse ET',
@@ -389,7 +391,8 @@ class EmailService {
             `Hello ${user.name || ''},\n\n` +
             `Open this link to set and confirm your new password: ${resetUrl}\n` +
             (resetOtp ? `Or copy this 6-digit code and paste it into the recovery screen: ${resetOtp}\n` : '') +
-            `Expires in ${expiresMinutes} minutes.\n`
+            `Expires in ${expiresMinutes} minutes.\n\n` +
+            `TalentPulse ET • Addis Ababa, Ethiopia\n`
         };
 
     const otpSectionHtml = resetOtp
@@ -426,9 +429,6 @@ class EmailService {
           <title>${this.escapeHtml(copy.subject)}</title>
         </head>
         <body style="margin:0;padding:0;background-color:#f1f5f9;font-family:${isAm ? "'Noto Serif Ethiopic','Nyala','Abyssinica SIL'," : ''}-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0f172a;">
-          <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
-            ${this.escapeHtml(copy.preheader)}
-          </div>
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color:#f1f5f9;padding:32px 16px;">
             <tr>
               <td align="center">
@@ -689,17 +689,26 @@ class EmailService {
   /**
    * Send email
    */
-  async sendEmail(to, subject, html, text) {
+  async sendEmail(to, subject, html, text, options = {}) {
     if (!to) {
       throw new Error('Recipient email address is required');
     }
 
+    const smtpUser = (process.env.SMTP_USER || '').trim();
     const mailOptions = {
       from: this.getFromAddress(),
       to,
+      replyTo: options?.replyTo || smtpUser || undefined,
       subject,
       html,
-      ...(text ? { text } : {})
+      ...(text ? { text } : {}),
+      headers: {
+        'Auto-Submitted': 'auto-generated',
+        'X-Auto-Response-Suppress': 'All',
+        'Importance': 'high',
+        'X-Priority': '1',
+        ...(options?.headers || {})
+      }
     };
 
     try {
