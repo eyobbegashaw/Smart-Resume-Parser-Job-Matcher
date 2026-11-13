@@ -119,8 +119,6 @@ class EmailService {
     const language = options.language === 'am' ? 'am' : 'en';
     const provider = options.provider === 'google' ? 'google' : 'local';
     const expiresMinutes = options.expiresMinutes || 10;
-    const frontendUrl = this.getFrontendUrl().replace(/\/+$/, '');
-    const verifyUrl = `${frontendUrl}/verify-otp?email=${encodeURIComponent(user.email)}#code=${encodeURIComponent(otp)}&action=copy`;
     const safeName = this.escapeHtml(user.name || user.email);
     const safeEmail = this.escapeHtml(user.email);
     const safeOtp = this.escapeHtml(otp);
@@ -129,7 +127,7 @@ class EmailService {
     const copy = isAm
       ? {
           subject: `${otp} የማረጋገጫ ኮድዎ ነው • TalentPulse ET`,
-          preheader: `የ6-አሃዝ የማረጋገጫ ኮድዎ ${otp} ነው። በ${expiresMinutes} ደቂቃ ውስጥ ጊዜው ያበቃል።`,
+          preheader: `የ6-አሃዝ የማረጋገጫ ኮድዎ ${otp} ነው። ኮዱን ቀድተው በገጹ ላይ ይለጥፉ።`,
           brand: 'TalentPulse ET',
           brandSub: 'ብልህ የሲቪ ትንተና እና የሥራ ማዛመጃ',
           providerBadge: provider === 'google' ? 'በGoogle መለያ ምዝገባ' : 'በኢሜይል ምዝገባ',
@@ -137,26 +135,26 @@ class EmailService {
           greeting: `ሰላም ${safeName}፣`,
           intro:
             provider === 'google'
-              ? 'በGoogle መለያዎ ምዝገባውን ለማጠናቀቅ እና ወደ የግል መድረክዎ ለመግባት ከዚህ በታች ያለውን ባለ 6-አሃዝ የማረጋገጫ ኮድ ያስገቡ።'
-              : 'ምዝገባዎን ለማጠናቀቅ እና ወደ የግል መድረክዎ ለመግባት ከዚህ በታች ያለውን ባለ 6-አሃዝ የማረጋገጫ ኮድ ያስገቡ።',
+              ? 'በGoogle መለያዎ ምዝገባውን ለማጠናቀቅ ከዚህ በታች ያለውን ባለ 6-አሃዝ የማረጋገጫ ኮድ ቀድተው በኦቲፒ መሙያ ገጹ ላይ ይለጥፉ።'
+              : 'ምዝገባዎን ለማጠናቀቅ ከዚህ በታች ያለውን ባለ 6-አሃዝ የማረጋገጫ ኮድ ቀድተው በኦቲፒ መሙያ ገጹ ላይ ይለጥፉ።',
           otpLabel: 'የአንድ ጊዜ የማረጋገጫ ኮድ (OTP)',
-          copyHint: 'ሁሉንም 6 አሃዞች ለመምረጥ እና ለመቅዳት ኮዱ ላይ ጠቅ ያድርጉ ወይም ሁለት ጊዜ ይንኩ።',
-          copyCta: '📋 ኮዱን ቅዳ እና አረጋግጥ',
-          fallbackCopyLabel: 'ለመቅዳት ዝግጁ ኮድ፡',
+          copyBadge: '📋 ባለ 6-አሃዙን ኮድ ይቅዱ (Copy)',
+          copyHint: 'ኮዱን በቀላሉ ለመቅዳት ጠቅ ያድርጉ፤ ከዚያም ወደ ድረ-ገጹ በመመለስ "ኮድ ለጥፍ" የሚለውን ይጫኑ ወይም ይለጥፉ (Paste)።',
+          fallbackCopyLabel: 'ባለ 6-አሃዝ ኮድ፡',
           expiryTitle: 'የኮዱ የቆይታ ጊዜ',
           expiryValue: `ለ${expiresMinutes} ደቂቃዎች ያገለግላል`,
           targetLabel: 'የተላከበት ኢሜይል',
           securityNote: 'ይህን ኮድ ለማንም አያጋሩ። ይህን መለያ እርስዎ ካልፈጠሩት ይህን መልዕክት ችላ ማለት ይችላሉ።',
           footer: 'TalentPulse ET • አዲስ አበባ፣ ኢትዮጵያ',
           textBody:
-            `ሰላም ${user.name || ''},\n\n` +
+            `ሰላም ${user.name || ''}፣\n\n` +
             `የ6-አሃዝ የማረጋገጫ ኮድዎ፡ ${otp}\n\n` +
-            `ይህ ኮድ በ${expiresMinutes} ደቂቃ ውስጥ ጊዜው ያበቃል።\n` +
-            `ኮዱን ለመቅዳት እና ለማረጋገጥ ይህን አገናኝ ይክፈቱ፡ ${verifyUrl}\n`
+            `እባክዎ ይህን ኮድ ቀድተው በማረጋገጫ ገጹ ላይ ይለጥፉ።\n` +
+            `ይህ ኮድ በ${expiresMinutes} ደቂቃ ውስጥ ጊዜው ያበቃል።\n`
         }
       : {
           subject: `${otp} is your verification code • TalentPulse ET`,
-          preheader: `Your 6-digit verification code is ${otp}. Valid for ${expiresMinutes} minutes.`,
+          preheader: `Your 6-digit verification code is ${otp}. Copy and paste into the verification page.`,
           brand: 'TalentPulse ET',
           brandSub: 'AI Resume Intelligence & Job Matcher',
           providerBadge: provider === 'google' ? 'Google Account Registration' : 'Email Registration',
@@ -164,12 +162,12 @@ class EmailService {
           greeting: `Hello ${safeName},`,
           intro:
             provider === 'google'
-              ? 'To finish registering with your Google account and unlock your personal workspace, enter the 6-digit OTP verification code below.'
-              : 'To complete your registration and enter your personal workspace, enter the 6-digit OTP verification code below.',
+              ? 'To finish registering with your Google account, copy the 6-digit OTP verification code below and paste it into the verification screen.'
+              : 'To complete your registration and enter your personal workspace, copy the 6-digit OTP verification code below and paste it into the verification screen.',
           otpLabel: 'ONE-TIME 6-DIGIT CODE',
-          copyHint: 'Tap or double-click the code box above to select all 6 digits instantly.',
-          copyCta: '📋 Copy OTP & Open Verification',
-          fallbackCopyLabel: 'Quick-select code:',
+          copyBadge: '📋 Copy 6-Digit Code',
+          copyHint: 'Tap or double-click to copy the code, then return to your verification page and click "Paste Code".',
+          fallbackCopyLabel: '6-digit code:',
           expiryTitle: 'Valid Window',
           expiryValue: `${expiresMinutes} minutes`,
           targetLabel: 'Sent To',
@@ -179,8 +177,8 @@ class EmailService {
           textBody:
             `Hello ${user.name || ''},\n\n` +
             `Your 6-digit verification code is: ${otp}\n\n` +
-            `This code expires in ${expiresMinutes} minutes.\n` +
-            `Copy OTP & verify here: ${verifyUrl}\n`
+            `Please copy this code and paste it on the verification page.\n` +
+            `This code expires in ${expiresMinutes} minutes.\n`
         };
 
     const html = `
@@ -233,30 +231,29 @@ class EmailService {
                       <!-- Selectable OTP Vault Box -->
                       <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;margin-bottom:24px;">
                         <tr>
-                          <td style="padding:24px 20px;text-align:center;">
+                          <td style="padding:26px 20px;text-align:center;">
                             <div style="font-size:11px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:#059669;margin-bottom:14px;">
                               ${this.escapeHtml(copy.otpLabel)}
                             </div>
 
-                            <div style="display:inline-block;background-color:#ecfdf5;border:2px dashed #10b981;border-radius:14px;padding:16px 26px;margin-bottom:16px;">
-                              <code style="font-family:'JetBrains Mono','SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;font-size:36px;font-weight:800;letter-spacing:10px;color:#065f46;line-height:1.2;user-select:all;-webkit-user-select:all;-moz-user-select:all;cursor:pointer;">${safeOtp}</code>
+                            <div style="display:inline-block;background-color:#ecfdf5;border:2px dashed #10b981;border-radius:14px;padding:16px 28px;margin-bottom:14px;">
+                              <span style="font-family:'JetBrains Mono','SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;font-size:36px;font-weight:800;letter-spacing:10px;color:#065f46;line-height:1.2;user-select:all;-webkit-user-select:all;-moz-user-select:all;display:inline-block;">${safeOtp}</span>
                             </div>
 
-                            <!-- Copy Button CTA inside Email Message -->
-                            <div style="margin:8px 0 14px;">
-                              <a href="${verifyUrl}"
-                                 style="display:inline-block;background-color:#059669;background-image:linear-gradient(135deg,#059669 0%,#10b981 100%);color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;padding:13px 26px;border-radius:12px;box-shadow:0 6px 16px rgba(5,150,105,0.28);">
-                                ${this.escapeHtml(copy.copyCta)}
-                              </a>
+                            <!-- Copy Button Badge (Instructional, no external redirect) -->
+                            <div style="margin:4px 0 12px;">
+                              <div style="display:inline-block;background-color:#059669;color:#ffffff;font-size:13px;font-weight:700;padding:8px 20px;border-radius:999px;box-shadow:0 4px 12px rgba(5,150,105,0.22);">
+                                ${this.escapeHtml(copy.copyBadge)}
+                              </div>
                             </div>
 
-                            <div style="font-size:12px;color:#64748b;margin-bottom:10px;">
+                            <div style="font-size:12px;line-height:1.6;color:#475569;margin-bottom:12px;max-width:380px;margin-left:auto;margin-right:auto;">
                               ${this.escapeHtml(copy.copyHint)}
                             </div>
 
-                            <div style="display:inline-block;background-color:#ffffff;border:1px solid #cbd5e1;border-radius:8px;padding:6px 12px;font-size:12px;color:#334155;">
+                            <div style="display:inline-block;background-color:#ffffff;border:1px solid #cbd5e1;border-radius:8px;padding:6px 14px;font-size:12px;color:#334155;">
                               <span style="color:#64748b;">${this.escapeHtml(copy.fallbackCopyLabel)}</span>
-                              <strong style="font-family:'JetBrains Mono',Consolas,monospace;color:#0f172a;letter-spacing:2px;user-select:all;-webkit-user-select:all;cursor:pointer;margin-left:6px;">${safeOtp}</strong>
+                              <strong style="font-family:'JetBrains Mono',Consolas,monospace;color:#0f172a;letter-spacing:2px;user-select:all;-webkit-user-select:all;margin-left:6px;">${safeOtp}</strong>
                             </div>
                           </td>
                         </tr>
@@ -331,9 +328,6 @@ class EmailService {
     const resetOtp = options.resetOtp ? String(options.resetOtp) : '';
     const frontendUrl = this.getFrontendUrl();
     const resetUrl = `${frontendUrl}/reset-password/${encodeURIComponent(resetToken)}`;
-    const copyResetCodeUrl = resetOtp
-      ? `${frontendUrl}/forgot-password?email=${encodeURIComponent(user.email)}&step=verify#code=${encodeURIComponent(resetOtp)}&action=copy`
-      : resetUrl;
     const safeName = this.escapeHtml(user.name || user.email);
     const safeEmail = this.escapeHtml(user.email);
     const safeOtp = this.escapeHtml(resetOtp);
@@ -345,27 +339,27 @@ class EmailService {
             ? `${resetOtp} የይለፍ ቃል መቀየሪያ ኮድዎ ነው • TalentPulse ET`
             : 'የይለፍ ቃልዎን ይቀይሩ • TalentPulse ET',
           preheader: resetOtp
-            ? `የይለፍ ቃል መቀየሪያ ኮድዎ ${resetOtp} ነው። አዲስ ይለፍ ቃል እና ማረጋገጫ ለማስገባት ይጠቀሙበት።`
+            ? `የይለፍ ቃል መቀየሪያ ኮድዎ ${resetOtp} ነው። ኮዱን ቀድተው በይለፍ ቃል መቀየሪያ ገጹ ላይ ያስገቡ።`
             : `አዲስ ይለፍ ቃል ለመፍጠር ይህን መልዕክት ይክፈቱ (በ${expiresMinutes} ደቂቃ ውስጥ ጊዜው ያበቃል)።`,
           badge: 'የይለፍ ቃል መቀየሪያ ጥያቄ',
           heading: 'አዲስ ይለፍ ቃል ያዘጋጁ',
           brand: 'TalentPulse ET',
           greeting: `ሰላም ${safeName}፣`,
           intro:
-            'የይለፍ ቃልዎን ለመቀየር ጥያቄ ደርሶናል። ከዚህ በታች ያለውን ቁልፍ ተጭነው አዲስ ይለፍ ቃል እና የማረጋገጫ ይለፍ ቃል ማስገባት ወይም ባለ 6-አሃዝ ኮዱን መቅዳት ይችላሉ።',
+            'የይለፍ ቃልዎን ለመቀየር ጥያቄ ደርሶናል። ከዚህ በታች ያለውን ቁልፍ ተጭነው አዲስ ይለፍ ቃል ማስገባት ወይም ባለ 6-አሃዝ ኮዱን ቀድተው በማገገሚያ ገጹ ላይ መለጠፍ ይችላሉ።',
           primaryCta: '🔐 አዲስ ይለፍ ቃል ያስገቡ (ይለፍ ቃል ቀይር)',
           otpLabel: 'አማራጭ ባለ 6-አሃዝ የመቀየሪያ ኮድ (OTP)',
-          copyBtn: '📋 ኮዱን ቅዳ እና ከታች ያስገቡ',
-          copyHint: 'ሁሉንም 6 አሃዞች ለመቅዳት ኮዱ ላይ ሁለት ጊዜ ይንኩ።',
+          copyBadge: '📋 ባለ 6-አሃዙን ኮድ ይቅዱ (Copy)',
+          copyHint: 'ኮዱን ቀድተው ወደ ድረ-ገጹ በመመለስ በይለፍ ቃል መቀየሪያ ገጹ ላይ "ኮድ ለጥፍ" የሚለውን ይጫኑ ወይም ይለጥፉ (Paste)።',
           expiryTitle: 'የአገልግሎት ጊዜ',
           expiryValue: `${expiresMinutes} ደቂቃዎች`,
           targetLabel: 'የተላከበት ኢሜይል',
           securityNote: 'ይህን ጥያቄ እርስዎ ካላቀረቡ መለያዎ ደህንነቱ የተጠበቀ ነው — ይህን ኢሜይል ችላ ይበሉት።',
           footer: 'TalentPulse ET • አዲስ አበባ፣ ኢትዮጵያ',
           textBody:
-            `ሰላም ${user.name || ''},\n\n` +
+            `ሰላም ${user.name || ''}፣\n\n` +
             `አዲስ ይለፍ ቃል ለማስገባት ይህን አገናኝ ይክፈቱ፡ ${resetUrl}\n` +
-            (resetOtp ? `ወይም ይህን ባለ 6-አሃዝ ኮድ ይጠቀሙ፡ ${resetOtp}\n` : '') +
+            (resetOtp ? `ወይም ባለ 6-አሃዝ ኮዱን ቀድተው በማገገሚያ ገጹ ላይ ይለጥፉ፡ ${resetOtp}\n` : '') +
             `ይህ አገናኝ እና ኮድ በ${expiresMinutes} ደቂቃ ውስጥ ጊዜው ያበቃል።\n`
         }
       : {
@@ -373,7 +367,7 @@ class EmailService {
             ? `${resetOtp} is your password reset code • TalentPulse ET`
             : 'Reset Your Password • TalentPulse ET',
           preheader: resetOtp
-            ? `Your 6-digit password reset code is ${resetOtp}. Open the link inside to set and confirm your new password.`
+            ? `Your 6-digit password reset code is ${resetOtp}. Copy and paste into the password recovery screen.`
             : `Set and confirm your new TalentPulse ET password within ${expiresMinutes} minutes.`,
           badge: 'Password Recovery',
           heading: 'Set your new password',
@@ -383,8 +377,8 @@ class EmailService {
             'We received a request to reset your password. Click the button below to enter your New Password and Confirm Password, or copy the 6-digit reset code into the recovery screen.',
           primaryCta: '🔐 Set New & Confirm Password',
           otpLabel: 'OR USE THIS 6-DIGIT RESET CODE',
-          copyBtn: '📋 Copy Reset Code & Continue',
-          copyHint: 'Double-click or tap the 6-digit code above to copy it cleanly.',
+          copyBadge: '📋 Copy 6-Digit Reset Code',
+          copyHint: 'Copy this 6-digit code and paste it on the password recovery screen.',
           expiryTitle: 'Valid Window',
           expiryValue: `${expiresMinutes} minutes`,
           targetLabel: 'Account Email',
@@ -394,7 +388,7 @@ class EmailService {
           textBody:
             `Hello ${user.name || ''},\n\n` +
             `Open this link to set and confirm your new password: ${resetUrl}\n` +
-            (resetOtp ? `Or enter this 6-digit reset code: ${resetOtp}\n` : '') +
+            (resetOtp ? `Or copy this 6-digit code and paste it into the recovery screen: ${resetOtp}\n` : '') +
             `Expires in ${expiresMinutes} minutes.\n`
         };
 
@@ -402,20 +396,19 @@ class EmailService {
       ? `
         <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;margin:20px 0 24px;">
           <tr>
-            <td style="padding:20px;text-align:center;">
+            <td style="padding:22px 20px;text-align:center;">
               <div style="font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:#059669;margin-bottom:12px;">
                 ${this.escapeHtml(copy.otpLabel)}
               </div>
-              <div style="display:inline-block;background-color:#ecfdf5;border:2px dashed #10b981;border-radius:14px;padding:14px 24px;margin-bottom:14px;">
-                <code style="font-family:'JetBrains Mono','SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;font-size:32px;font-weight:800;letter-spacing:9px;color:#065f46;line-height:1.2;user-select:all;-webkit-user-select:all;-moz-user-select:all;cursor:pointer;">${safeOtp}</code>
+              <div style="display:inline-block;background-color:#ecfdf5;border:2px dashed #10b981;border-radius:14px;padding:14px 26px;margin-bottom:12px;">
+                <span style="font-family:'JetBrains Mono','SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;font-size:32px;font-weight:800;letter-spacing:9px;color:#065f46;line-height:1.2;user-select:all;-webkit-user-select:all;-moz-user-select:all;display:inline-block;">${safeOtp}</span>
               </div>
-              <div style="margin:6px 0 12px;">
-                <a href="${copyResetCodeUrl}"
-                   style="display:inline-block;background-color:#ffffff;border:1px solid #10b981;color:#065f46;font-size:13px;font-weight:700;text-decoration:none;padding:10px 20px;border-radius:10px;">
-                  ${this.escapeHtml(copy.copyBtn)}
-                </a>
+              <div style="margin:4px 0 10px;">
+                <div style="display:inline-block;background-color:#059669;color:#ffffff;font-size:12px;font-weight:700;padding:6px 18px;border-radius:999px;">
+                  ${this.escapeHtml(copy.copyBadge)}
+                </div>
               </div>
-              <div style="font-size:12px;color:#64748b;">
+              <div style="font-size:12px;line-height:1.5;color:#475569;">
                 ${this.escapeHtml(copy.copyHint)}
               </div>
             </td>

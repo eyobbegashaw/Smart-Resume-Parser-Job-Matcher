@@ -18,7 +18,8 @@ export default function FloatingInput({
   inputMode,
   inputClassName = '',
   rightElement,
-  prClass
+  prClass,
+  onPaste
 }) {
   const [focused, setFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -56,6 +57,7 @@ export default function FloatingInput({
         minLength={minLength}
         maxLength={maxLength}
         inputMode={inputMode}
+        onPaste={onPaste}
         disabled={disabled}
         placeholder=" "
         className={`peer w-full rounded-2xl border bg-white/80 py-3.5 text-sm text-slate-900 outline-none transition-all duration-200 placeholder-transparent dark:text-white ${

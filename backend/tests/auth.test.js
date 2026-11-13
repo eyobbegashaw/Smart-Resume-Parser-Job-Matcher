@@ -248,7 +248,7 @@ describe('Auth Controller & Routes', () => {
     expect(sendOtpSpy).toHaveBeenCalledTimes(1);
   });
 
-  test('EmailService.sendOtpEmail renders 6-digit OTP, copyable code styling, and Copy CTA button link', async () => {
+  test('EmailService.sendOtpEmail renders 6-digit OTP, copyable code styling, and no localhost action links', async () => {
     const sendEmailSpy = jest.spyOn(emailService, 'sendEmail').mockResolvedValue({
       success: true,
       messageId: 'test-otp-email'
@@ -266,8 +266,9 @@ describe('Auth Controller & Routes', () => {
     expect(subject).toContain('654321');
     expect(html).toContain('654321');
     expect(html).toContain('user-select:all');
-    expect(html).toContain('#code=654321&action=copy');
-    expect(html).toContain('Copy OTP');
+    expect(html).not.toContain('#code=');
+    expect(html).not.toContain('&action=copy');
+    expect(html).toContain('Copy 6-Digit Code');
     expect(text).toContain('654321');
   });
 

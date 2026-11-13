@@ -305,6 +305,12 @@ export default function ForgotPasswordPage() {
                 label={t('auth.forgotCodeLabel')}
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, OTP_LENGTH))}
+                onPaste={(e) => {
+                  e.preventDefault();
+                  const pasted = e.clipboardData?.getData('text') || '';
+                  const clean = pasted.replace(/\D/g, '').slice(0, OTP_LENGTH);
+                  if (clean) setOtp(clean);
+                }}
                 icon={KeyRound}
                 required
                 autoComplete="one-time-code"
